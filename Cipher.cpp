@@ -1,8 +1,6 @@
 #include "Cipher.h"
 #include "BaseFunctions.h"
 
-#include <iostream>
-
 namespace openssl_wrapper
 {
   CipherException::CipherException(const std::string & info):
