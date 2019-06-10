@@ -1,9 +1,9 @@
 #include "BaseFunctions.h"
 
+#include <openssl/err.h>
+
 #include <cstring>
 #include <memory>
-
-#include <openssl/err.h>
 
 namespace openssl_wrapper
 {

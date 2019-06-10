@@ -4,14 +4,14 @@
 
 #include <cstdint>
 #include <exception>
-#include <functional>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace openssl_wrapper
 {
+  using bytes = std::vector<uint8_t>;
+  
   class CipherException: std::exception
   {
   public:
@@ -25,19 +25,31 @@ namespace openssl_wrapper
   {
   public:
     Cipher(const std::string & cipherName);
-    void SetPlaintext(const std::vector<uint8_t> & plaintext);
-    std::vector<uint8_t> GetPlaintext() const;
-    void SetCiphertext(const std::vector<uint8_t> & ciphertext);
-    std::vector<uint8_t> GetCiphertext() const;
-    void SetKey(const std::vector<uint8_t> & key);
-    void SetIv(const std::vector<uint8_t> & iv);
+    void SetPlaintext(const bytes & plaintext);
+    bytes GetPlaintext() const;
+    void SetCiphertext(const bytes & ciphertext);
+    bytes GetCiphertext() const;
+    void SetKey(const bytes & key);
+    void SetIv(const bytes & iv);
+    //
+    void StartEncrypt();
     void Encrypt();
+    void FinalEncrypt();
+    //
+    void StartDecrypt();
     void Decrypt();
+    void FinalDecrypt();
+    //
+    static bytes Encrypt(const std::string & cipherName, const bytes & key, const bytes & iv, const bytes & plaintext);
+    static bytes Decrypt(const std::string & cipherName, const bytes & key, const bytes & iv, const bytes & ciphertext);
   private:
-    std::unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_cleanup)> _context;
-    std::vector<uint8_t> _plaintext;
-    std::vector<uint8_t> _ciphertext;
-    std::vector<uint8_t> _key;
-    std::vector<uint8_t> _iv;
+    static void ContextDeleter(EVP_CIPHER_CTX * context);
+  private:
+    std::unique_ptr<EVP_CIPHER_CTX, decltype(&ContextDeleter)> _context;
+    std::string _cipherName;
+    bytes _plaintext;
+    bytes _ciphertext;
+    bytes _key;
+    bytes _iv;
   };
 }
