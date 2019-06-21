@@ -7,32 +7,32 @@ namespace openssl_wrapper
   _cipherName(cipherName)
   {}
   
-  void Cipher::SetPlaintext(const bytes & plaintext)
+  void Cipher::SetPlaintext(const bytes_t & plaintext)
   {
     _plaintext = plaintext;
   }
   
-  bytes Cipher::GetPlaintext() const
+  bytes_t Cipher::GetPlaintext() const
   {
     return _plaintext;
   }
   
-  void Cipher::SetCiphertext(const bytes & ciphertext)
+  void Cipher::SetCiphertext(const bytes_t & ciphertext)
   {
     _ciphertext = ciphertext;
   }
   
-  bytes Cipher::GetCiphertext() const
+  bytes_t Cipher::GetCiphertext() const
   {
     return _ciphertext;
   }
   
-  void Cipher::SetKey(const std::vector<uint8_t> & key)
+  void Cipher::SetKey(const bytes_t & key)
   {
     _key = key;
   }
   
-  void Cipher::SetIv(const std::vector<uint8_t> & iv)
+  void Cipher::SetIv(const bytes_t & iv)
   {
     _iv = iv;
   }
@@ -86,7 +86,7 @@ namespace openssl_wrapper
   
   void Cipher::FinalEncrypt()
   {
-    bytes lastBlock(EVP_CIPHER_CTX_block_size(_context.get()));
+    bytes_t lastBlock(EVP_CIPHER_CTX_block_size(_context.get()));
     int tmplen = 0;
     if(!EVP_EncryptFinal_ex(_context.get(), lastBlock.data(), &tmplen))
     {
@@ -149,7 +149,7 @@ namespace openssl_wrapper
   
   void Cipher::FinalDecrypt()
   {
-    bytes lastBlock(EVP_CIPHER_CTX_block_size(_context.get()));
+    bytes_t lastBlock(EVP_CIPHER_CTX_block_size(_context.get()));
     int tmplen = 0;
     if (!EVP_DecryptFinal_ex(_context.get(), lastBlock.data(), &tmplen))
     {
@@ -159,7 +159,7 @@ namespace openssl_wrapper
     _context.reset(nullptr);
   }
   
-  bytes Cipher::Encrypt(const std::string & cipherName, const bytes & key, const bytes & iv, const bytes & plaintext)
+  bytes_t Cipher::Encrypt(const std::string & cipherName, const bytes_t & key, const bytes_t & iv, const bytes_t & plaintext)
   {
     Cipher cipher(cipherName);
     cipher.SetKey(key);
@@ -172,7 +172,7 @@ namespace openssl_wrapper
     return cipher.GetCiphertext();
   }
   
-  bytes Cipher::Decrypt(const std::string & cipherName, const bytes & key, const bytes & iv, const bytes & ciphertext)
+  bytes_t Cipher::Decrypt(const std::string & cipherName, const bytes_t & key, const bytes_t & iv, const bytes_t & ciphertext)
   {
     Cipher cipher(cipherName);
     cipher.SetKey(key);

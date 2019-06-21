@@ -14,6 +14,7 @@
 #include <openssl/dh.h>
 
 #include "RsaCrypto.h"
+#include "DhCrypto.h"
 
 int main()
 {
@@ -68,18 +69,25 @@ int main()
    fwrite(cipher.GetCiphertext().data(), 1, cipher.GetCiphertext().size(), out);
    fclose(out);*/
    
-   openssl_wrapper::RsaCrypto rsaCrypto;
-   /*rsaCrypto.GenerateKey();
+   /*openssl_wrapper::RsaCrypto rsaCrypto;
+   rsaCrypto.GenerateKey();
    rsaCrypto.WritePrivateKeyToFile("private.pem", "aes-128-cbc", "12345");
    rsaCrypto.WritePublicKeyToFile("public.pem");
    rsaCrypto.SetPlaintext({'H', 'E', 'L', 'L', '\n'});
    rsaCrypto.Encrypt();*/
    
-   rsaCrypto.ReadPrivateKeyFromFile("private.pem", "12345");
+   openssl_wrapper::DhCrypto dhCrypto;
+   dhCrypto.GenerateParameters();
+   dhCrypto.WriteParametersToFile("parameters.pem");
+   dhCrypto.GenerateKey();
+   dhCrypto.WritePublicKeyToFile("dhkeypublic.pem");
+   dhCrypto.WritePrivateKeyToFile("dhkeprivate.pem", "aes-128-cbc", "qwerty");
+   
+   /*rsaCrypto.ReadPrivateKeyFromFile("private.pem", "12345");
    auto fileData = openssl_wrapper::BaseFunctions::GetFileData("output.bin");
    rsaCrypto.SetCiphertext(fileData);
    rsaCrypto.Decrypt();
-   std::cout << (char*)rsaCrypto.GetPlaintext().data();
+   std::cout << (char*)rsaCrypto.GetPlaintext().data();*/
    
    //openssl_wrapper::BaseFunctions::WriteToFile("output.bin", rsaCrypto.GetCiphertext());
  }

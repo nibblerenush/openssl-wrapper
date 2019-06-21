@@ -31,7 +31,7 @@ namespace openssl_wrapper
     return std::strerror(errno);
   }
   
-  bytes BaseFunctions::GetFileData(const std::string & filename)
+  bytes_t BaseFunctions::GetFileData(const std::string & filename)
   {
     std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "rb"), &std::fclose);
     if (!file)
@@ -53,7 +53,7 @@ namespace openssl_wrapper
       throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
     }
     //
-    bytes result(size);
+    bytes_t result(size);
     if (std::fread(result.data(), 1, size, file.get()) != size)
     {
       throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
@@ -61,7 +61,7 @@ namespace openssl_wrapper
     return result;
   }
   
-  void BaseFunctions::WriteToFile(const std::string & filename, const bytes & outData)
+  void BaseFunctions::WriteToFile(const std::string & filename, const bytes_t & outData)
   {
     std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "wb"), &std::fclose);
     if (!file)

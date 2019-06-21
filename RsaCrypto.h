@@ -1,8 +1,8 @@
 #pragma once
 
 #include "BaseFunctions.h"
-
 #include <memory>
+
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
 
@@ -30,19 +30,18 @@ namespace openssl_wrapper
     void ReadPrivateKeyFromFile(const std::string & filename, const std::string & pass);
     void WritePublicKeyToFile(const std::string & filename);
     void ReadPublicKeyFromFile(const std::string & filename);
-    void SetPlaintext(const bytes & plaintext);
-    bytes GetPlaintext() const;
-    void SetCiphertext(const bytes & ciphertext);
-    bytes GetCiphertext() const;
+    void SetPlaintext(const bytes_t & plaintext);
+    bytes_t GetPlaintext() const;
+    void SetCiphertext(const bytes_t & ciphertext);
+    bytes_t GetCiphertext() const;
     void Encrypt();
     void Decrypt();
   private:
     std::unique_ptr<EVP_PKEY, decltype(&EVP_PKEY_free)> _pkey;
-    std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)> _pkeyCtx;
     int _keygenBits;
     int _pubexp;
     Padding _padding;
-    bytes _plaintext;
-    bytes _ciphertext;
+    bytes_t _plaintext;
+    bytes_t _ciphertext;
   };
 }

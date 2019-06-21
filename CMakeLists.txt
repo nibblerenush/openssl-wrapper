@@ -10,12 +10,14 @@ endif()
 set(sources
   BaseFunctions.cpp
   Cipher.cpp
+  DhCrypto.cpp
   RsaCrypto.cpp
   main.cpp)
 
 set(headers
   BaseFunctions.h
   Cipher.h
+  DhCrypto.h
   RsaCrypto.h)
 
 add_executable(${PROJECT_NAME} ${sources} ${headers})

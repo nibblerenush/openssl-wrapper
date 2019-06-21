@@ -1,13 +1,13 @@
 #pragma once
 
-#include <exception>
 #include <cstdint>
+#include <exception>
 #include <string>
 #include <vector>
 
 namespace openssl_wrapper
 {
-  using bytes = std::vector<uint8_t>;
+  using bytes_t = std::vector<uint8_t>;
   
   class WrapperException: std::exception
   {
@@ -23,8 +23,8 @@ namespace openssl_wrapper
   public:
     static std::string GetSslErrorString();
     static std::string GetOsErrorString();
-    static bytes GetFileData(const std::string & filename);
-    static void WriteToFile(const std::string & filename, const bytes & outData);
+    static bytes_t GetFileData(const std::string & filename);
+    static void WriteToFile(const std::string & filename, const bytes_t & outData);
   private:
     static const unsigned int ERROR_BUFFER_SIZE;
   };
