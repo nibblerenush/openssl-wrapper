@@ -1,18 +1,18 @@
 #include "BaseFunctions.h"
 
-#include <openssl/err.h>
-
 #include <cstring>
 #include <memory>
 
+#include <openssl/err.h>
+
 namespace openssl_wrapper
 {
-  BaseException::BaseException(const std::string & info):
+  WrapperException::WrapperException(const std::string & info, const std::string & filename, int line):
   std::exception(),
-  _info(info)
+  _info(info + "; FILE: " + filename + "; LINE: " + std::to_string(line))
   {}
   
-  const char * BaseException::what() const noexcept
+  const char * WrapperException::what() const noexcept
   {
     return _info.c_str();
   }
@@ -31,33 +31,48 @@ namespace openssl_wrapper
     return std::strerror(errno);
   }
   
-  std::vector<uint8_t> BaseFunctions::GetFileData(const std::string & filename)
+  bytes BaseFunctions::GetFileData(const std::string & filename)
   {
     std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "rb"), &std::fclose);
     if (!file)
     {
-      throw BaseException(GetOsErrorString());
+      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
     }
-    
+    //
     if (std::fseek(file.get(), 0, SEEK_END) == -1)
     {
-      throw BaseException(GetOsErrorString());
+      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
     }
     long size = std::ftell(file.get());
     if (size == -1)
     {
-      throw BaseException(GetOsErrorString());
+      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
     }
     if (std::fseek(file.get(), 0, SEEK_SET) == -1)
     {
-      throw BaseException(GetOsErrorString());
+      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
     }
-    
-    std::vector<uint8_t> result(size);
-    if (std::fread(result.data(), size, 1, file.get()) == 0)
+    //
+    bytes result(size);
+    if (std::fread(result.data(), 1, size, file.get()) != size)
     {
-      throw BaseException(GetOsErrorString());
+      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
     }
     return result;
+  }
+  
+  void BaseFunctions::WriteToFile(const std::string & filename, const bytes & outData)
+  {
+    std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "wb"), &std::fclose);
+    if (!file)
+    {
+      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
+    }
+    //
+    std::size_t size = outData.size();
+    if (std::fwrite(outData.data(), 1, outData.size(), file.get()) != size)
+    {
+      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
+    }
   }
 }

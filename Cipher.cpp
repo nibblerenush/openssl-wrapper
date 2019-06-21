@@ -1,18 +1,7 @@
 #include "Cipher.h"
-#include "BaseFunctions.h"
 
 namespace openssl_wrapper
 {
-  CipherException::CipherException(const std::string & info):
-  std::exception(),
-  _info(info)
-  {}
-  
-  const char * CipherException::what() const noexcept
-  {
-    return _info.c_str();
-  }
-  
   Cipher::Cipher(const std::string & cipherName):
   _context(nullptr, ContextDeleter),
   _cipherName(cipherName)
@@ -55,27 +44,27 @@ namespace openssl_wrapper
     const EVP_CIPHER * evpCipher = EVP_get_cipherbyname(_cipherName.c_str());
     if (!evpCipher)
     {
-      throw CipherException("Invalid cipher name");
+      throw WrapperException("Invalid cipher name", __FILE__, __LINE__);
     }
     //
     if (!EVP_EncryptInit_ex(_context.get(), evpCipher, nullptr, nullptr, nullptr))
     {
-      throw CipherException(BaseFunctions::GetSslErrorString());
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
     //
     if (_key.size() != EVP_CIPHER_CTX_key_length(_context.get()))
     {
-      throw CipherException("Invalid key size");
+      throw WrapperException("Invalid key size", __FILE__, __LINE__);
     }
     //
     if (_iv.size() != EVP_CIPHER_CTX_iv_length(_context.get()))
     {
-      throw CipherException("Invalid IV size");
+      throw WrapperException("Invalid IV size", __FILE__, __LINE__);
     }
     //
     if (!EVP_EncryptInit_ex(_context.get(), nullptr, nullptr, _key.data(), _iv.data()))
     {
-      throw CipherException(BaseFunctions::GetSslErrorString());
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
   }
   
@@ -83,14 +72,14 @@ namespace openssl_wrapper
   {
     if (_plaintext.empty())
     {
-      throw CipherException("Plaintext is empty");
+      throw WrapperException("Plaintext is empty", __FILE__, __LINE__);
     }
     //
     int outlen = 0;
     _ciphertext.resize(_plaintext.size() + EVP_CIPHER_CTX_block_size(_context.get()) - 1);
     if(!EVP_EncryptUpdate(_context.get(), _ciphertext.data(), &outlen, _plaintext.data(), _plaintext.size()))
     {
-      throw CipherException(BaseFunctions::GetSslErrorString());
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
     _ciphertext.resize(outlen);
   }
@@ -101,11 +90,11 @@ namespace openssl_wrapper
     int tmplen = 0;
     if(!EVP_EncryptFinal_ex(_context.get(), lastBlock.data(), &tmplen))
     {
-      throw CipherException(BaseFunctions::GetSslErrorString());
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
     if (tmplen != lastBlock.size())
     {
-      throw CipherException("Invalid tmplen for last block");
+      throw WrapperException("Invalid tmplen for last block", __FILE__, __LINE__);
     }
     std::copy(lastBlock.begin(), lastBlock.end(), back_inserter(_ciphertext));
     _context.reset(nullptr);
@@ -118,27 +107,27 @@ namespace openssl_wrapper
     const EVP_CIPHER * evpCipher = EVP_get_cipherbyname(_cipherName.c_str());
     if (!evpCipher)
     {
-      throw CipherException("Invalid cipher name");
+      throw WrapperException("Invalid cipher name", __FILE__, __LINE__);
     }
     //
     if (!EVP_DecryptInit_ex(_context.get(), evpCipher, nullptr, nullptr, nullptr))
     {
-      throw CipherException(BaseFunctions::GetSslErrorString());
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
     //
     if (_key.size() != EVP_CIPHER_CTX_key_length(_context.get()))
     {
-      throw CipherException("Invalid key size");
+      throw WrapperException("Invalid key size", __FILE__, __LINE__);
     }
     //
     if (_iv.size() != EVP_CIPHER_CTX_iv_length(_context.get()))
     {
-      throw CipherException("Invalid IV size");
+      throw WrapperException("Invalid IV size", __FILE__, __LINE__);
     }
     //
     if (!EVP_DecryptInit_ex(_context.get(), nullptr, nullptr, _key.data(), _iv.data()))
     {
-      throw CipherException(BaseFunctions::GetSslErrorString());
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
   }
   
@@ -146,14 +135,14 @@ namespace openssl_wrapper
   {
     if (_ciphertext.empty())
     {
-      throw CipherException("Ciphertext is empty");
+      throw WrapperException("Ciphertext is empty", __FILE__, __LINE__);
     }
     //
     int outlen = 0;
     _plaintext.resize(_ciphertext.size() + EVP_CIPHER_CTX_block_size(_context.get()));
     if (!EVP_DecryptUpdate(_context.get(), _plaintext.data(), &outlen, _ciphertext.data(), _ciphertext.size()))
     {
-      throw CipherException(BaseFunctions::GetSslErrorString());
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
     _plaintext.resize(outlen);
   }
@@ -164,7 +153,7 @@ namespace openssl_wrapper
     int tmplen = 0;
     if (!EVP_DecryptFinal_ex(_context.get(), lastBlock.data(), &tmplen))
     {
-      throw CipherException(BaseFunctions::GetSslErrorString());
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
     std::copy(lastBlock.begin(), lastBlock.begin() + tmplen, back_inserter(_plaintext));
     _context.reset(nullptr);

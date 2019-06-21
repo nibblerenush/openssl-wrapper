@@ -10,11 +10,13 @@ endif()
 set(sources
   BaseFunctions.cpp
   Cipher.cpp
+  RsaCrypto.cpp
   main.cpp)
 
 set(headers
   BaseFunctions.h
-  Cipher.h)
+  Cipher.h
+  RsaCrypto.h)
 
 add_executable(${PROJECT_NAME} ${sources} ${headers})
 target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto OpenSSL::SSL)

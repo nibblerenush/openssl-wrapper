@@ -1,26 +1,12 @@
 #pragma once
 
-#include <openssl/evp.h>
+#include "BaseFunctions.h"
 
-#include <cstdint>
-#include <exception>
 #include <memory>
-#include <string>
-#include <vector>
+#include <openssl/evp.h>
 
 namespace openssl_wrapper
 {
-  using bytes = std::vector<uint8_t>;
-  
-  class CipherException: std::exception
-  {
-  public:
-    CipherException(const std::string & info);
-    const char * what() const noexcept override;
-  private:
-    std::string _info;
-  };
-  
   class Cipher
   {
   public:
