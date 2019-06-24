@@ -43,5 +43,7 @@ namespace openssl_wrapper
     Padding _padding;
     bytes_t _plaintext;
     bytes_t _ciphertext;
+  private:
+    static const int DEFAULT_KEYGEN_BITS;
   };
 }

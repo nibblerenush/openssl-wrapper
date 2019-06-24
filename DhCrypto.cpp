@@ -4,10 +4,12 @@
 
 namespace openssl_wrapper
 {
+  const int DhCrypto::DEFAULT_PRIME_LEN = 1024;
+  
   DhCrypto::DhCrypto():
   _params(nullptr, &EVP_PKEY_free),
   _pkey(nullptr, &EVP_PKEY_free),
-  _primeLen(1024),
+  _primeLen(DEFAULT_PRIME_LEN),
   _generator(DH_GENERATOR_2)
   {}
   
@@ -16,9 +18,19 @@ namespace openssl_wrapper
     _primeLen = primeLen;
   }
   
+  int DhCrypto::GetPrimeLen() const
+  {
+    return _primeLen;
+  }
+  
   void DhCrypto::SetGenerator(int generator)
   {
     _generator = generator;
+  }
+  
+  int DhCrypto::GetGenerator() const
+  {
+    return _generator;
   }
   
   void DhCrypto::GenerateParameters()
