@@ -76,12 +76,12 @@ int main()
    rsaCrypto.SetPlaintext({'H', 'E', 'L', 'L', '\n'});
    rsaCrypto.Encrypt();*/
    
-   openssl_wrapper::DhCrypto dhCrypto;
+   /*openssl_wrapper::DhCrypto dhCrypto;
    dhCrypto.GenerateParameters();
    dhCrypto.WriteParametersToFile("parameters.pem");
    dhCrypto.GenerateKey();
    dhCrypto.WritePublicKeyToFile("dhkeypublic.pem");
-   dhCrypto.WritePrivateKeyToFile("dhkeprivate.pem", "aes-128-cbc", "qwerty");
+   dhCrypto.WritePrivateKeyToFile("dhkeprivate.pem", "aes-128-cbc", "qwerty");*/
    
    /*rsaCrypto.ReadPrivateKeyFromFile("private.pem", "12345");
    auto fileData = openssl_wrapper::BaseFunctions::GetFileData("output.bin");
@@ -90,6 +90,37 @@ int main()
    std::cout << (char*)rsaCrypto.GetPlaintext().data();*/
    
    //openssl_wrapper::BaseFunctions::WriteToFile("output.bin", rsaCrypto.GetCiphertext());
+   
+   
+   openssl_wrapper::DhCrypto dhc1;
+   openssl_wrapper::DhCrypto dhc2;
+   
+   dhc1.GenerateParameters();
+   dhc1.WriteParametersToFile("dhc1.pem");
+   dhc1.GenerateKey();
+   
+   dhc2.ReadParametersFromFile("dhc1.pem");
+   dhc2.GenerateKey();
+   
+   dhc1.KeyExchange(dhc2);
+   dhc2.KeyExchange(dhc1);
+   auto skey1 = dhc1.GetSharedSecret();
+   auto skey2 = dhc2.GetSharedSecret();
+   
+   for (std::size_t i = 0; i < skey1.size(); ++i)
+   {
+     std::cout << std::hex << (int)skey1[i] << " " << (int)skey2[i] << " ";
+   }
+   std::cout << std::endl;
+   
+   //dhc2.WriteParametersToFile("dhc2.pem");
+   
+   /*dhc2.SetGenerator(dhc1.GetGenerator());
+   dhc2.SetPrimeLen(dhc1.GetPrimeLen());
+   dhc2.GenerateParameters();
+   dhc2.GenerateKey();
+   
+   dhc1.KeyExchange(dhc2);*/
  }
  catch (openssl_wrapper::WrapperException ex)
  {

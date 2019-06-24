@@ -107,8 +107,7 @@ namespace openssl_wrapper
       throw WrapperException(BaseFunctions::GetOsErrorString(), __FILE__, __LINE__);
     }
     //
-    EVP_PKEY * tempPkey = nullptr;
-    tempPkey = PEM_read_PrivateKey(file.get(), nullptr, nullptr, (void*)pass.c_str());
+    EVP_PKEY * tempPkey = PEM_read_PrivateKey(file.get(), nullptr, nullptr, (void*)pass.c_str());
     if (!tempPkey)
     {
       throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
@@ -139,8 +138,7 @@ namespace openssl_wrapper
       throw WrapperException(BaseFunctions::GetOsErrorString(), __FILE__, __LINE__);
     }
     //
-    EVP_PKEY * tempPkey = nullptr;
-    tempPkey = PEM_read_PUBKEY(file.get(), nullptr, nullptr, nullptr);
+    EVP_PKEY * tempPkey = PEM_read_PUBKEY(file.get(), nullptr, nullptr, nullptr);
     if (!tempPkey)
     {
       throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
