@@ -11,6 +11,8 @@ set(sources
   BaseFunctions.cpp
   Cipher.cpp
   DhCrypto.cpp
+  EcdhCrypto.cpp
+  KeyAgreement.cpp
   RsaCrypto.cpp
   main.cpp)
 
@@ -18,6 +20,8 @@ set(headers
   BaseFunctions.h
   Cipher.h
   DhCrypto.h
+  EcdhCrypto.h
+  KeyAgreement.h
   RsaCrypto.h)
 
 add_executable(${PROJECT_NAME} ${sources} ${headers})

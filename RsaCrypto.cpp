@@ -10,7 +10,7 @@ namespace openssl_wrapper
   _pkey(nullptr, &EVP_PKEY_free),
   _keygenBits(DEFAULT_KEYGEN_BITS),
   _pubexp(RSA_F4),
-  _padding(Padding::RSA_PKCS1)
+  _padding(RSA_PKCS1_OAEP_PADDING)
   {}
   
   void RsaCrypto::SetKeygenBits(int keygenBits)
@@ -23,7 +23,7 @@ namespace openssl_wrapper
     _pubexp = pubexp;
   }
   
-  void RsaCrypto::SetPadding(Padding padding)
+  void RsaCrypto::SetPadding(int padding)
   {
     _padding = padding;
   }
@@ -75,6 +75,7 @@ namespace openssl_wrapper
     {
       throw WrapperException("Invalid pass size (must be >= 4)", __FILE__, __LINE__);
     }
+    //
     const EVP_CIPHER * evpCipher = EVP_get_cipherbyname(cipherName.c_str());
     if (!evpCipher)
     {
@@ -88,6 +89,11 @@ namespace openssl_wrapper
     }
     //
     RSA * rsa = EVP_PKEY_get1_RSA(_pkey.get());
+    if (!rsa)
+    {
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
+    }
+    //
     if (!PEM_write_RSAPrivateKey(file.get(), rsa, evpCipher, (unsigned char*)pass.c_str(), pass.length(), nullptr, nullptr))
     {
       throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
@@ -124,6 +130,11 @@ namespace openssl_wrapper
     }
     //
     RSA * rsa = EVP_PKEY_get1_RSA(_pkey.get());
+    if (!rsa)
+    {
+      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
+    }
+    //
     if (!PEM_write_RSAPublicKey(file.get(), rsa))
     {
       throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
@@ -184,7 +195,7 @@ namespace openssl_wrapper
       throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
     // 3 step
-    if (EVP_PKEY_CTX_set_rsa_padding(encCtx.get(), static_cast<int>(_padding)) <= 0)
+    if (EVP_PKEY_CTX_set_rsa_padding(encCtx.get(), _padding) <= 0)
     {
       throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
@@ -221,7 +232,7 @@ namespace openssl_wrapper
       throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
     // 3 step
-    if (EVP_PKEY_CTX_set_rsa_padding(decCtx.get(), static_cast<int>(_padding)) <= 0)
+    if (EVP_PKEY_CTX_set_rsa_padding(decCtx.get(), _padding) <= 0)
     {
       throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }

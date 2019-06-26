@@ -15,6 +15,9 @@
 
 #include "RsaCrypto.h"
 #include "DhCrypto.h"
+#include "EcdhCrypto.h"
+
+#include <openssl/pem.h>
 
 int main()
 {
@@ -24,6 +27,8 @@ int main()
  
  try
  {
+   //PEM_write_ECPKParameters
+   
    /*openssl_wrapper::Cipher cipher("des-cbc");
    std::vector<uint8_t> data = openssl_wrapper::BaseFunctions::GetFileData("output.bin");
    
@@ -92,7 +97,7 @@ int main()
    //openssl_wrapper::BaseFunctions::WriteToFile("output.bin", rsaCrypto.GetCiphertext());
    
    
-   openssl_wrapper::DhCrypto dhc1;
+   /*openssl_wrapper::DhCrypto dhc1;
    openssl_wrapper::DhCrypto dhc2;
    
    dhc1.GenerateParameters();
@@ -101,6 +106,32 @@ int main()
    
    dhc2.ReadParametersFromFile("dhc1.pem");
    dhc2.GenerateKey();
+   
+   dhc1.KeyExchange(dhc2);
+   dhc2.KeyExchange(dhc1);
+   auto skey1 = dhc1.GetSharedSecret();
+   auto skey2 = dhc2.GetSharedSecret();
+   
+   for (std::size_t i = 0; i < skey1.size(); ++i)
+   {
+     std::cout << std::hex << (int)skey1[i] << " " << (int)skey2[i] << " ";
+   }
+   std::cout << std::endl;*/
+   
+   openssl_wrapper::EcdhCrypto dhc1;
+   openssl_wrapper::EcdhCrypto dhc2;
+   
+   dhc1.SetEllipticCurve(NID_X9_62_prime256v1);
+   dhc1.GenerateParameters();
+   dhc1.GenerateKey();
+   dhc1.WritePrivateKeyToFile("ecdh_priv1.pem", "aes-128-cbc", "12345");
+   dhc1.WritePublicKeyToFile("ecdh_pub1.pem");
+   
+   dhc2.SetEllipticCurve(NID_X9_62_prime256v1);
+   dhc2.GenerateParameters();
+   dhc2.GenerateKey();
+   dhc2.WritePrivateKeyToFile("ecdh_priv2.pem", "aes-128-cbc", "12345");
+   dhc2.WritePublicKeyToFile("ecdh_pub2.pem");
    
    dhc1.KeyExchange(dhc2);
    dhc2.KeyExchange(dhc1);
