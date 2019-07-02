@@ -19,6 +19,10 @@
 
 #include <openssl/pem.h>
 
+#include "DhParams.h"
+#include "EcParams.h"
+#include "DsaParams.h"
+
 int main()
 {
   
@@ -118,7 +122,7 @@ int main()
    }
    std::cout << std::endl;*/
    
-   openssl_wrapper::EcdhCrypto dhc1;
+   /*openssl_wrapper::EcdhCrypto dhc1;
    openssl_wrapper::EcdhCrypto dhc2;
    
    dhc1.SetEllipticCurve(NID_X9_62_prime256v1);
@@ -142,8 +146,17 @@ int main()
    {
      std::cout << std::hex << (int)skey1[i] << " " << (int)skey2[i] << " ";
    }
-   std::cout << std::endl;
+   std::cout << std::endl;*/
+  
+   openssl_wrapper::DsaParams dsa1;
+   openssl_wrapper::DsaParams dsa2;
    
+   dsa1.GenerateParameters();
+   dsa1.WriteParametersToFile("dsa1param.pem");
+   
+   
+   dsa2.ReadParametersFromFile("dsa1param.pem");
+   dsa2.WriteParametersToFile("dsa2param.pem");
    //dhc2.WriteParametersToFile("dhc2.pem");
    
    /*dhc2.SetGenerator(dhc1.GetGenerator());
@@ -159,11 +172,7 @@ int main()
    
  }
  
- 
-
- 
  std::cerr << "END\n";
- 
  ERR_free_strings();
  EVP_cleanup();
  return EXIT_SUCCESS;
