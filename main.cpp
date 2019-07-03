@@ -11,169 +11,58 @@
 #include "Cipher.h"
 #include "BaseFunctions.h"
 
-#include <openssl/dh.h>
+#include "params/DhParams.h"
+#include "params/EcParams.h"
+#include "params/DsaParams.h"
 
-#include "RsaCrypto.h"
-#include "DhCrypto.h"
-#include "EcdhCrypto.h"
+#include "KeyAgreement.h"
+#include "Key.h"
 
-#include <openssl/pem.h>
-
-#include "DhParams.h"
-#include "EcParams.h"
-#include "DsaParams.h"
+using namespace openssl_wrapper;
 
 int main()
 {
+  OpenSSL_add_all_algorithms();
+  ERR_load_crypto_strings();
   
- OpenSSL_add_all_algorithms();
- ERR_load_crypto_strings();
- 
- try
- {
-   //PEM_write_ECPKParameters
-   
-   /*openssl_wrapper::Cipher cipher("des-cbc");
-   std::vector<uint8_t> data = openssl_wrapper::BaseFunctions::GetFileData("output.bin");
-   
-    std::vector<uint8_t> result = openssl_wrapper::Cipher::Decrypt("des-cbc", {0, 1, 2, 3, 4, 5, 6, 7}, {0, 1, 2, 3, 4, 5, 6, 7}, data);*/
-   
-   /*cipher.SetKey({0, 1, 2, 3, 4, 5, 6, 7});
-   cipher.SetIv({0, 1, 2, 3, 4, 5, 6, 7});
-   cipher.SetCiphertext(data);
-   
-   cipher.StartDecrypt();
-   cipher.Decrypt();
-   cipher.FinalDecrypt();*/
-   
-   //std::cout << (char*)result.data() << std::endl;
-   
-   /*FILE * out = fopen("output.bin", "wb");
-   cipher.SetKey({0, 1, 2, 3, 4, 5, 6, 7});
-   cipher.SetIv({0, 1, 2, 3, 4, 5, 6, 7});
-   
-   
-   cipher.StartEncrypt();
-   
-   cipher.SetPlaintext({'H', 'E', 'L', 'L', 'H', 'E', 'L', 'L', '\n'});
-   cipher.Encrypt();
-   fwrite(cipher.GetCiphertext().data(), 1, cipher.GetCiphertext().size(), out);
-   
-   cipher.SetPlaintext({'H', 'U', 'B', 'B', 'H', 'E', 'L', 'L', '\n'});
-   cipher.Encrypt();
-   
-   cipher.FinalEncrypt();
-   
-   fwrite(cipher.GetCiphertext().data(), 1, cipher.GetCiphertext().size(), out);
-   fclose(out);*/
-   
-   /*out = fopen("output.bin", "wb");
-   
-   cipher.StartEncrypt();
-   cipher.SetPlaintext({'H', 'E', 'L', 'L', 'H', 'E', 'L', 'L', '\n'});
-   cipher.Encrypt();
-   cipher.FinalEncrypt();
-   
-   
-   fwrite(cipher.GetCiphertext().data(), 1, cipher.GetCiphertext().size(), out);
-   fclose(out);*/
-   
-   /*openssl_wrapper::RsaCrypto rsaCrypto;
-   rsaCrypto.GenerateKey();
-   rsaCrypto.WritePrivateKeyToFile("private.pem", "aes-128-cbc", "12345");
-   rsaCrypto.WritePublicKeyToFile("public.pem");
-   rsaCrypto.SetPlaintext({'H', 'E', 'L', 'L', '\n'});
-   rsaCrypto.Encrypt();*/
-   
-   /*openssl_wrapper::DhCrypto dhCrypto;
-   dhCrypto.GenerateParameters();
-   dhCrypto.WriteParametersToFile("parameters.pem");
-   dhCrypto.GenerateKey();
-   dhCrypto.WritePublicKeyToFile("dhkeypublic.pem");
-   dhCrypto.WritePrivateKeyToFile("dhkeprivate.pem", "aes-128-cbc", "qwerty");*/
-   
-   /*rsaCrypto.ReadPrivateKeyFromFile("private.pem", "12345");
-   auto fileData = openssl_wrapper::BaseFunctions::GetFileData("output.bin");
-   rsaCrypto.SetCiphertext(fileData);
-   rsaCrypto.Decrypt();
-   std::cout << (char*)rsaCrypto.GetPlaintext().data();*/
-   
-   //openssl_wrapper::BaseFunctions::WriteToFile("output.bin", rsaCrypto.GetCiphertext());
-   
-   
-   /*openssl_wrapper::DhCrypto dhc1;
-   openssl_wrapper::DhCrypto dhc2;
-   
-   dhc1.GenerateParameters();
-   dhc1.WriteParametersToFile("dhc1.pem");
-   dhc1.GenerateKey();
-   
-   dhc2.ReadParametersFromFile("dhc1.pem");
-   dhc2.GenerateKey();
-   
-   dhc1.KeyExchange(dhc2);
-   dhc2.KeyExchange(dhc1);
-   auto skey1 = dhc1.GetSharedSecret();
-   auto skey2 = dhc2.GetSharedSecret();
-   
-   for (std::size_t i = 0; i < skey1.size(); ++i)
-   {
-     std::cout << std::hex << (int)skey1[i] << " " << (int)skey2[i] << " ";
-   }
-   std::cout << std::endl;*/
-   
-   /*openssl_wrapper::EcdhCrypto dhc1;
-   openssl_wrapper::EcdhCrypto dhc2;
-   
-   dhc1.SetEllipticCurve(NID_X9_62_prime256v1);
-   dhc1.GenerateParameters();
-   dhc1.GenerateKey();
-   dhc1.WritePrivateKeyToFile("ecdh_priv1.pem", "aes-128-cbc", "12345");
-   dhc1.WritePublicKeyToFile("ecdh_pub1.pem");
-   
-   dhc2.SetEllipticCurve(NID_X9_62_prime256v1);
-   dhc2.GenerateParameters();
-   dhc2.GenerateKey();
-   dhc2.WritePrivateKeyToFile("ecdh_priv2.pem", "aes-128-cbc", "12345");
-   dhc2.WritePublicKeyToFile("ecdh_pub2.pem");
-   
-   dhc1.KeyExchange(dhc2);
-   dhc2.KeyExchange(dhc1);
-   auto skey1 = dhc1.GetSharedSecret();
-   auto skey2 = dhc2.GetSharedSecret();
-   
-   for (std::size_t i = 0; i < skey1.size(); ++i)
-   {
-     std::cout << std::hex << (int)skey1[i] << " " << (int)skey2[i] << " ";
-   }
-   std::cout << std::endl;*/
+  try
+  {
+    EcParams ec1;
+    EcParams ec2;
+    
+    ec1.SetEllipticCurve(NID_secp256k1);
+    ec2.SetEllipticCurve(NID_secp256k1);
+    
+    ec1.GenerateParameters();
+    ec2.GenerateParameters();
+    
+    
+    DhParams dh1;
+    DhParams dh2;
+    
+    dh1.SetPrimeLen(1024);
+    dh1.SetGenerator(2);
+    dh1.GenerateParameters();
+    
+    dh1.WriteParametersToFile("temp.pem");
+    dh2.ReadParametersFromFile("temp.pem");
+    
+    Key key1;
+    key1.GenerateKey(&dh1);
+    
+    Key key2;
+    key2.GenerateKey(&dh2);
+    
+    auto secret = KeyAgreement::KeyExchange(key1, key2);
+    std::cerr << BaseFunctions::GetByteString(secret) << std::endl;
+  }
+  catch (WrapperException ex)
+  {
+    std::cerr << ex.what() << std::endl;
+  }
   
-   openssl_wrapper::DsaParams dsa1;
-   openssl_wrapper::DsaParams dsa2;
-   
-   dsa1.GenerateParameters();
-   dsa1.WriteParametersToFile("dsa1param.pem");
-   
-   
-   dsa2.ReadParametersFromFile("dsa1param.pem");
-   dsa2.WriteParametersToFile("dsa2param.pem");
-   //dhc2.WriteParametersToFile("dhc2.pem");
-   
-   /*dhc2.SetGenerator(dhc1.GetGenerator());
-   dhc2.SetPrimeLen(dhc1.GetPrimeLen());
-   dhc2.GenerateParameters();
-   dhc2.GenerateKey();
-   
-   dhc1.KeyExchange(dhc2);*/
- }
- catch (openssl_wrapper::WrapperException ex)
- {
-   std::cerr << ex.what() << std::endl;
-   
- }
- 
- std::cerr << "END\n";
- ERR_free_strings();
- EVP_cleanup();
- return EXIT_SUCCESS;
+  std::cerr << "END\n";
+  ERR_free_strings();
+  EVP_cleanup();
+  return EXIT_SUCCESS;
 }

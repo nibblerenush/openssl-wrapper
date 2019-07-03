@@ -25,6 +25,7 @@ namespace openssl_wrapper
     static std::string GetOsErrorString();
     static bytes_t GetFileData(const std::string & filename);
     static void WriteToFile(const std::string & filename, const bytes_t & outData);
+    static std::string GetByteString(const bytes_t & bytes);
   private:
     static const unsigned int ERROR_BUFFER_SIZE;
   };

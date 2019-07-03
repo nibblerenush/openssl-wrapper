@@ -3,7 +3,7 @@
 #include <memory>
 #include <openssl/evp.h>
 
-#include "Parameters.h"
+#include "params/Parameters.h"
 
 namespace openssl_wrapper
 {
@@ -20,5 +20,6 @@ namespace openssl_wrapper
     // ===== Write/Read =====
   private:
     std::unique_ptr<EVP_PKEY, decltype(&EVP_PKEY_free)> _pkey;
+    friend class KeyAgreement;
   };
 }

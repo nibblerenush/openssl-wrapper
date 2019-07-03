@@ -8,31 +8,28 @@ if(OPENSSL_FOUND)
 endif()
 
 set(sources
+  params/DhParams.cpp
+  params/DsaParams.cpp
+  params/EcParams.cpp
+  params/Parameters.cpp
   BaseFunctions.cpp
   Cipher.cpp
-  DhCrypto.cpp
-  DhParams.cpp
-  DsaParams.cpp
-  EcdhCrypto.cpp
-  EcParams.cpp
   Key.cpp
   KeyAgreement.cpp
-  Parameters.cpp
   RsaCrypto.cpp
   main.cpp)
 
 set(headers
+  params/DhParams.h
+  params/DsaParams.h
+  params/EcParams.h
+  params/Parameters.h
   BaseFunctions.h
   Cipher.h
-  DhCrypto.h
-  DhParams.h
-  DsaParams.h
-  EcdhCrypto.h
-  EcParams.h
   Key.h
   KeyAgreement.h
-  Parameters.h
   RsaCrypto.h)
 
 add_executable(${PROJECT_NAME} ${sources} ${headers})
-target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto OpenSSL::SSL)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto OpenSSL::SSL)

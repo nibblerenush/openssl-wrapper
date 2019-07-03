@@ -75,4 +75,16 @@ namespace openssl_wrapper
       throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
     }
   }
+  
+  std::string BaseFunctions::GetByteString(const bytes_t & bytes)
+  {
+    std::string byteString;
+    for (unsigned int i = 0; i < bytes.size(); ++i)
+    {
+      char hexNumber[3];
+      std::sprintf(hexNumber, "%.2x", bytes[i]);
+      byteString += hexNumber;
+    }
+    return byteString;
+  }
 }
