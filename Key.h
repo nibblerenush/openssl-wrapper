@@ -11,7 +11,7 @@ namespace openssl_wrapper
   {
   public:
     Key();
-    void GenerateKey(const Parameters * params = nullptr);
+    virtual void GenerateKey(const Parameters * params = nullptr);
     // ===== Write/Read =====
     void WritePrivateKeyToFile(const std::string & filename, const std::string & cipherName, const std::string & pass);
     void ReadPrivateKeyFromFile(const std::string & filename, const std::string & pass);
@@ -21,5 +21,6 @@ namespace openssl_wrapper
   private:
     std::unique_ptr<EVP_PKEY, decltype(&EVP_PKEY_free)> _pkey;
     friend class KeyAgreement;
+    friend class DigitalSignature;
   };
 }

@@ -15,6 +15,7 @@
 #include "params/EcParams.h"
 #include "params/DsaParams.h"
 
+#include "DigitalSignature.h"
 #include "KeyAgreement.h"
 #include "Key.h"
 
@@ -27,7 +28,7 @@ int main()
   
   try
   {
-    EcParams ec1;
+    /*EcParams ec1;
     EcParams ec2;
     
     ec1.SetEllipticCurve(NID_secp256k1);
@@ -54,7 +55,28 @@ int main()
     key2.GenerateKey(&dh2);
     
     auto secret = KeyAgreement::KeyExchange(key1, key2);
-    std::cerr << BaseFunctions::GetByteString(secret) << std::endl;
+    std::cerr << BaseFunctions::GetByteString(secret) << std::endl;*/
+    
+    
+    auto msg = BaseFunctions::GetFileData("msg.txt");
+    //
+    DsaParams dsa;
+    dsa.GenerateParameters();
+    //
+    Key dsaKey;
+    dsaKey.GenerateKey(&dsa);
+    dsaKey.WritePublicKeyToFile("dsaPublic.pem");
+    //
+    
+    DhParams dh;
+    dh.GenerateParameters();
+    //
+    Key dhKey;
+    dhKey.GenerateKey(&dh);
+    dhKey.WritePublicKeyToFile("dhPublic.pem");
+    
+    auto signature = DigitalSignature::Sign(dhKey, "SHA1", msg);
+    BaseFunctions::WriteToFile("signature.bin", signature);
   }
   catch (WrapperException ex)
   {
