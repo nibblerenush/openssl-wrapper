@@ -17,7 +17,7 @@ set(sources
   DigitalSignature.cpp
   Key.cpp
   KeyAgreement.cpp
-  RsaCrypto.cpp
+  RsaKey.cpp
   main.cpp)
 
 set(headers
@@ -30,7 +30,7 @@ set(headers
   DigitalSignature.h
   Key.h
   KeyAgreement.h
-  RsaCrypto.h)
+  RsaKey.h)
 
 add_executable(${PROJECT_NAME} ${sources} ${headers})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

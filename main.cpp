@@ -1,23 +1,9 @@
-#include <cstring>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
-#include <memory>
-
-#include "Cipher.h"
 #include "BaseFunctions.h"
-
-#include "params/DhParams.h"
-#include "params/EcParams.h"
-#include "params/DsaParams.h"
-
-#include "DigitalSignature.h"
-#include "KeyAgreement.h"
-#include "Key.h"
 
 using namespace openssl_wrapper;
 
@@ -28,55 +14,7 @@ int main()
   
   try
   {
-    /*EcParams ec1;
-    EcParams ec2;
-    
-    ec1.SetEllipticCurve(NID_secp256k1);
-    ec2.SetEllipticCurve(NID_secp256k1);
-    
-    ec1.GenerateParameters();
-    ec2.GenerateParameters();
-    
-    
-    DhParams dh1;
-    DhParams dh2;
-    
-    dh1.SetPrimeLen(1024);
-    dh1.SetGenerator(2);
-    dh1.GenerateParameters();
-    
-    dh1.WriteParametersToFile("temp.pem");
-    dh2.ReadParametersFromFile("temp.pem");
-    
-    Key key1;
-    key1.GenerateKey(&dh1);
-    
-    Key key2;
-    key2.GenerateKey(&dh2);
-    
-    auto secret = KeyAgreement::KeyExchange(key1, key2);
-    std::cerr << BaseFunctions::GetByteString(secret) << std::endl;*/
-    
-    
-    auto msg = BaseFunctions::GetFileData("msg.txt");
-    //
-    DsaParams dsa;
-    dsa.GenerateParameters();
-    //
-    Key dsaKey;
-    dsaKey.GenerateKey(&dsa);
-    dsaKey.WritePublicKeyToFile("dsaPublic.pem");
-    //
-    
-    DhParams dh;
-    dh.GenerateParameters();
-    //
-    Key dhKey;
-    dhKey.GenerateKey(&dh);
-    dhKey.WritePublicKeyToFile("dhPublic.pem");
-    
-    auto signature = DigitalSignature::Sign(dhKey, "SHA1", msg);
-    BaseFunctions::WriteToFile("signature.bin", signature);
+    // Some code
   }
   catch (WrapperException ex)
   {

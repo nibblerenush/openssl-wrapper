@@ -67,13 +67,14 @@ namespace openssl_wrapper
       throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
     // 5 step
-    if (EVP_DigestVerifyFinal(verifyCtx.get(), sign.data(), sign.size()))
+    switch (EVP_DigestVerifyFinal(verifyCtx.get(), sign.data(), sign.size()))
     {
-      return true;
-    }
-    else
-    {
-      return false;
+      case 1:
+        return true;
+      case 0:
+        return false;
+      default:
+        throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
     }
   }
 }

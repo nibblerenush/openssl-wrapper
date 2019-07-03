@@ -18,7 +18,7 @@ namespace openssl_wrapper
     void WritePublicKeyToFile(const std::string & filename);
     void ReadPublicKeyFromFile(const std::string & filename);
     // ===== Write/Read =====
-  private:
+  protected:
     std::unique_ptr<EVP_PKEY, decltype(&EVP_PKEY_free)> _pkey;
     friend class KeyAgreement;
     friend class DigitalSignature;
