@@ -10,4 +10,3 @@ namespace openssl_wrapper
     static bytes_t GetHash(const std::string & digestname, const bytes_t & data);
   };
 }
-
