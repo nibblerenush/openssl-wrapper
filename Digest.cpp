@@ -31,12 +31,11 @@ namespace openssl_wrapper
     }
     // 5 step
     unsigned int digestSize = 0;
-    bytes_t result(EVP_MAX_MD_SIZE);
+    bytes_t result(EVP_MD_size(digestType));
     if (!EVP_DigestFinal_ex(digestCtx.get(), result.data(), &digestSize))
     {
       throw WrapperException("Invalid digest name", __FILE__, __LINE__);
     }
-    result.resize(digestSize);
     return result;
   }
 }
