@@ -4,6 +4,7 @@
 #include <openssl/err.h>
 
 #include "BaseFunctions.h"
+#include "Digest.h"
 
 using namespace openssl_wrapper;
 
@@ -14,7 +15,9 @@ int main()
   
   try
   {
-    // Some code
+    auto data = BaseFunctions::GetFileData("msg.txt");
+    auto hash = Digest::GetHash("SHA1", data);
+    std::cout << BaseFunctions::GetByteString(hash) << std::endl;
   }
   catch (WrapperException ex)
   {

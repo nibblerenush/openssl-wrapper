@@ -14,6 +14,7 @@ set(sources
   params/Parameters.cpp
   BaseFunctions.cpp
   Cipher.cpp
+  Digest.cpp
   DigitalSignature.cpp
   Key.cpp
   KeyAgreement.cpp
@@ -27,6 +28,7 @@ set(headers
   params/Parameters.h
   BaseFunctions.h
   Cipher.h
+  Digest.h
   DigitalSignature.h
   Key.h
   KeyAgreement.h
