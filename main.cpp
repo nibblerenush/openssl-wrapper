@@ -5,6 +5,7 @@
 
 #include "BaseFunctions.h"
 #include "Digest.h"
+#include "Hmac.h"
 
 using namespace openssl_wrapper;
 
@@ -16,8 +17,9 @@ int main()
   try
   {
     auto data = BaseFunctions::GetFileData("msg.txt");
-    auto hash = Digest::GetHash("SHA1", data);
-    std::cout << BaseFunctions::GetByteString(hash) << std::endl;
+    //auto result = Digest::GetHash("SHA1", data);
+    auto result = Hmac::GetMac("SHA1", data, {'1', '2', '3', '4'});
+    std::cout << BaseFunctions::GetByteString(result) << std::endl;
   }
   catch (WrapperException ex)
   {

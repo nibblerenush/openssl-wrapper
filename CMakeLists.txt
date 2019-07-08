@@ -16,6 +16,7 @@ set(sources
   Cipher.cpp
   Digest.cpp
   DigitalSignature.cpp
+  Hmac.cpp
   Key.cpp
   KeyAgreement.cpp
   RsaKey.cpp
@@ -30,6 +31,7 @@ set(headers
   Cipher.h
   Digest.h
   DigitalSignature.h
+  Hmac.h
   Key.h
   KeyAgreement.h
   RsaKey.h)
