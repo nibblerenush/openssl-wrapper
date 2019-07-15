@@ -22,22 +22,25 @@ set(sources
   lib/RsaKey.cpp)
 
 set(headers
-  include/params/DhParams.h
-  include/params/DsaParams.h
-  include/params/EcParams.h
-  include/params/Parameters.h
-  include/BaseFunctions.h
-  include/Cipher.h
-  include/Digest.h
-  include/DigitalSignature.h
-  include/Hmac.h
-  include/Key.h
-  include/KeyAgreement.h
-  include/RsaKey.h)
+  include/openssl-wrapper/params/DhParams.h
+  include/openssl-wrapper/params/DsaParams.h
+  include/openssl-wrapper/params/EcParams.h
+  include/openssl-wrapper/params/Parameters.h
+  include/openssl-wrapper/BaseFunctions.h
+  include/openssl-wrapper/Cipher.h
+  include/openssl-wrapper/Digest.h
+  include/openssl-wrapper/DigitalSignature.h
+  include/openssl-wrapper/Hmac.h
+  include/openssl-wrapper/Key.h
+  include/openssl-wrapper/KeyAgreement.h
+  include/openssl-wrapper/RsaKey.h)
 
 add_library(${PROJECT_NAME} STATIC ${sources} ${headers})
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/openssl-wrapper)
 target_link_libraries(${PROJECT_NAME} PUBLIC OpenSSL::Crypto OpenSSL::SSL)
+
+install(TARGETS ${PROJECT_NAME} DESTINATION /usr/lib64)
+install(DIRECTORY include/openssl-wrapper DESTINATION /usr/include)
 
 option(BUILD_EXAMPLES "For building examples" ON)
 if(BUILD_EXAMPLES)
