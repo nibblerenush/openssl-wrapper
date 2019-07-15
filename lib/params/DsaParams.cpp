@@ -1,4 +1,4 @@
-#include "DsaParams.h"
+#include "params/DsaParams.h"
 #include "BaseFunctions.h"
 
 #include <openssl/dsa.h>

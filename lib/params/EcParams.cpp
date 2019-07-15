@@ -1,4 +1,4 @@
-#include "EcParams.h"
+#include "params/EcParams.h"
 #include "BaseFunctions.h"
 
 #include <openssl/ec.h>

@@ -1,4 +1,4 @@
-#include "DhParams.h"
+#include "params/DhParams.h"
 #include "BaseFunctions.h"
 
 #include <openssl/dh.h>

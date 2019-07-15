@@ -5,37 +5,41 @@ find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
   message("OPENSSL_VERSION: " ${OPENSSL_VERSION})
   message("OPENSSL_LIBRARIES: " ${OPENSSL_LIBRARIES})
-endif()
+endif(OPENSSL_FOUND)
 
 set(sources
-  params/DhParams.cpp
-  params/DsaParams.cpp
-  params/EcParams.cpp
-  params/Parameters.cpp
-  BaseFunctions.cpp
-  Cipher.cpp
-  Digest.cpp
-  DigitalSignature.cpp
-  Hmac.cpp
-  Key.cpp
-  KeyAgreement.cpp
-  RsaKey.cpp
-  main.cpp)
+  lib/params/DhParams.cpp
+  lib/params/DsaParams.cpp
+  lib/params/EcParams.cpp
+  lib/params/Parameters.cpp
+  lib/BaseFunctions.cpp
+  lib/Cipher.cpp
+  lib/Digest.cpp
+  lib/DigitalSignature.cpp
+  lib/Hmac.cpp
+  lib/Key.cpp
+  lib/KeyAgreement.cpp
+  lib/RsaKey.cpp)
 
 set(headers
-  params/DhParams.h
-  params/DsaParams.h
-  params/EcParams.h
-  params/Parameters.h
-  BaseFunctions.h
-  Cipher.h
-  Digest.h
-  DigitalSignature.h
-  Hmac.h
-  Key.h
-  KeyAgreement.h
-  RsaKey.h)
+  include/params/DhParams.h
+  include/params/DsaParams.h
+  include/params/EcParams.h
+  include/params/Parameters.h
+  include/BaseFunctions.h
+  include/Cipher.h
+  include/Digest.h
+  include/DigitalSignature.h
+  include/Hmac.h
+  include/Key.h
+  include/KeyAgreement.h
+  include/RsaKey.h)
 
-add_executable(${PROJECT_NAME} ${sources} ${headers})
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto OpenSSL::SSL)
+add_library(${PROJECT_NAME} STATIC ${sources} ${headers})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenSSL::Crypto OpenSSL::SSL)
+
+option(BUILD_EXAMPLES "For building examples" ON)
+if(BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif(BUILD_EXAMPLES)
