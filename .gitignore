@@ -1,3 +1,7 @@
-.kdev4/
-build/
+# KDevelop
+.kdev4
 openssl-wrapper.kdev4
+
+# Visual Studio Code
+.vscode
+build

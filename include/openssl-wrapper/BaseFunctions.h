@@ -9,7 +9,7 @@ namespace openssl_wrapper
 {
   using bytes_t = std::vector<uint8_t>;
   
-  class WrapperException: std::exception
+  class WrapperException : std::exception
   {
   public:
     WrapperException(const std::string & info, const std::string & filename, int line);
@@ -25,8 +25,6 @@ namespace openssl_wrapper
     static std::string GetOsErrorString();
     static bytes_t GetFileData(const std::string & filename);
     static void WriteToFile(const std::string & filename, const bytes_t & outData);
-    static std::string GetByteString(const bytes_t & bytes);
-  private:
-    static const unsigned int ERROR_BUFFER_SIZE;
+    static std::string GetHexString(const bytes_t & bytes);
   };
 }

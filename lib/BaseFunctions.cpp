@@ -17,7 +17,7 @@ namespace openssl_wrapper
     return _info.c_str();
   }
   
-  const unsigned int BaseFunctions::ERROR_BUFFER_SIZE = 120;
+  static const unsigned int ERROR_BUFFER_SIZE = 120;
   
   std::string BaseFunctions::GetSslErrorString()
   {
@@ -76,15 +76,15 @@ namespace openssl_wrapper
     }
   }
   
-  std::string BaseFunctions::GetByteString(const bytes_t & bytes)
+  std::string BaseFunctions::GetHexString(const bytes_t & bytes)
   {
-    std::string byteString;
+    std::string hexString;
     for (unsigned int i = 0; i < bytes.size(); ++i)
     {
       char hexNumber[3];
       std::sprintf(hexNumber, "%.2x", bytes[i]);
-      byteString += hexNumber;
+      hexString += hexNumber;
     }
-    return byteString;
+    return hexString;
   }
 }
