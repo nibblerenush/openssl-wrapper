@@ -1,5 +1,6 @@
 #include "BaseFunctions.h"
 
+#include <algorithm>
 #include <cstring>
 #include <memory>
 
@@ -86,5 +87,17 @@ namespace openssl_wrapper
       hexString += hexNumber;
     }
     return hexString;
+  }
+
+  std::string BaseFunctions::GetAsciiString(const bytes_t & bytes)
+  {
+    if (std::any_of(bytes.begin(), bytes.end(), [] (uint8_t byte) { return byte > 127; }))
+    {
+      throw WrapperException("Invalid ascii string", __FILE__, __LINE__);
+    }
+
+    std::string result;
+    std::copy(bytes.begin(), bytes.end(), std::back_inserter(result));
+    return result;
   }
 }

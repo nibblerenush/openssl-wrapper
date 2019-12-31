@@ -26,5 +26,6 @@ namespace openssl_wrapper
     static bytes_t GetFileData(const std::string & filename);
     static void WriteToFile(const std::string & filename, const bytes_t & outData);
     static std::string GetHexString(const bytes_t & bytes);
+    static std::string GetAsciiString(const bytes_t & bytes);
   };
 }

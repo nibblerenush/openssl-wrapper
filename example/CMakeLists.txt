@@ -1,4 +1,4 @@
-set(target examples)
+set(target example)
 set(sources main.cpp)
 
 add_executable(${target} ${sources})
