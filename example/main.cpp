@@ -106,17 +106,27 @@ int main(int argc, char ** argv)
 
       std::unique_ptr<Parameters> dsaParams(new DsaParams);
       dsaParams->GenerateParameters();
-      dsaParams->WriteParametersToFile("dsaParams.pem");
+      dsaParams->WriteParametersToFile("DsaParams.pem");
+
+      std::unique_ptr<Parameters> ecParams(new EcParams);
+      ecParams->GenerateParameters();
+      ecParams->WriteParametersToFile("EcParams.pem");
 
       Key dsaKey;
       dsaKey.GenerateKey(dsaParams.get());
       dsaKey.WritePrivateKeyToFile("dsaKey.pem", "aes-128-cbc", "1234");
 
+      Key ecKey;
+      ecKey.GenerateKey(ecParams.get());
+      ecKey.WritePrivateKeyToFile("ecKey.pem", "aes-128-cbc", "1234");
+
       bytes_t rsaSignature = DigitalSignature::Sign(rsaKey, "SHA256", plaintext);
       bytes_t dsaSignature = DigitalSignature::Sign(dsaKey, "SHA256", plaintext);
+      bytes_t ecdsaSignature = DigitalSignature::Sign(ecKey, "SHA256", plaintext);
 
       std::cout << "RSA signature: " << BaseFunctions::GetHexString(rsaSignature) << '\n'
-        << "Dsa signature: " << BaseFunctions::GetHexString(dsaSignature) << std::endl;
+        << "Dsa signature: " << BaseFunctions::GetHexString(dsaSignature) << '\n'
+        << "Ecdsa signature: " << BaseFunctions::GetHexString(ecdsaSignature) << std::endl;
     }
 
     // Digest
