@@ -1,101 +1,77 @@
 #include "BaseFunctions.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstring>
 #include <memory>
+#include <sstream>
 
 #include <openssl/err.h>
 
 namespace openssl_wrapper
 {
-  WrapperException::WrapperException(const std::string & info, const std::string & filename, int line):
-  std::exception(),
-  _info(info + "; FILE: " + filename + "; LINE: " + std::to_string(line))
-  {}
-  
-  const char * WrapperException::what() const noexcept
-  {
-    return _info.c_str();
-  }
-  
+  // from 'man ERR_error_string'
   static const unsigned int ERROR_BUFFER_SIZE = 120;
   
-  std::string BaseFunctions::GetSslErrorString()
+  std::string GetSslErrorString()
   {
     char errBuf[ERROR_BUFFER_SIZE];
     ERR_error_string_n(ERR_get_error(), errBuf, sizeof(errBuf));
     return errBuf;
   }
   
-  std::string BaseFunctions::GetOsErrorString()
-  {
+  std::string GetOsErrorString() {
     return std::strerror(errno);
   }
   
-  bytes_t BaseFunctions::GetFileData(const std::string & filename)
+  bytes_t GetFileData(const std::string & filename)
   {
-    std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "rb"), &std::fclose);
-    if (!file)
-    {
-      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
-    }
     //
-    if (std::fseek(file.get(), 0, SEEK_END) == -1)
-    {
-      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
-    }
+    std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "rb"), &std::fclose);
+    ThrowSystemError<decltype(file.get())>(file.get(), nullptr, Operation::EQUAL);
+    
+    //
+    ThrowSystemError(std::fseek(file.get(), 0, SEEK_END), -1, Operation::EQUAL);
+    
+    //
     long size = std::ftell(file.get());
-    if (size == -1)
-    {
-      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
-    }
-    if (std::fseek(file.get(), 0, SEEK_SET) == -1)
-    {
-      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSystemError(size, -1L, Operation::EQUAL);
+    
+    //
+    ThrowSystemError(std::fseek(file.get(), 0, SEEK_SET), -1, Operation::EQUAL);
+    
     //
     bytes_t result(size);
-    if (std::fread(result.data(), 1, size, file.get()) != size)
-    {
-      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSystemError(std::fread(result.data(), 1, size, file.get()), static_cast<std::size_t>(size), Operation::NOT_EQUAL);
     return result;
   }
   
-  void BaseFunctions::WriteToFile(const std::string & filename, const bytes_t & outData)
+  void WriteToFile(const std::string & filename, const bytes_t & outData)
   {
+    //
     std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "wb"), &std::fclose);
-    if (!file)
-    {
-      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSystemError<decltype(file.get())>(file.get(), nullptr, Operation::EQUAL);
+    
     //
     std::size_t size = outData.size();
-    if (std::fwrite(outData.data(), 1, outData.size(), file.get()) != size)
-    {
-      throw WrapperException(GetOsErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSystemError(std::fwrite(outData.data(), 1, outData.size(), file.get()), size, Operation::NOT_EQUAL);
   }
   
-  std::string BaseFunctions::GetHexString(const bytes_t & bytes)
+  std::string GetHexString(const bytes_t & bytes)
   {
-    std::string hexString;
-    for (unsigned int i = 0; i < bytes.size(); ++i)
-    {
-      char hexNumber[3];
-      std::sprintf(hexNumber, "%.2x", bytes[i]);
-      hexString += hexNumber;
+    std::ostringstream result;
+    for (std::size_t i = 0; i < bytes.size(); ++i) {
+      result << std::hex << static_cast<int>(bytes[i]);
     }
-    return hexString;
+    return result.str();
   }
-
-  std::string BaseFunctions::GetAsciiString(const bytes_t & bytes)
+  
+  std::string GetAsciiString(const bytes_t & bytes)
   {
-    if (std::any_of(bytes.begin(), bytes.end(), [] (uint8_t byte) { return byte > 127; }))
-    {
-      throw WrapperException("Invalid ascii string", __FILE__, __LINE__);
+    if (std::any_of(bytes.begin(), bytes.end(), [] (std::uint8_t byte) { return byte > 127; })) {
+      throw std::invalid_argument("Invalid ascii string");
     }
-
+    
     std::string result;
     std::copy(bytes.begin(), bytes.end(), std::back_inserter(result));
     return result;

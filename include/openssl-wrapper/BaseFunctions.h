@@ -1,31 +1,67 @@
 #pragma once
 
 #include <cstdint>
-#include <exception>
 #include <string>
+#include <stdexcept>
 #include <vector>
 
 namespace openssl_wrapper
 {
-  using bytes_t = std::vector<uint8_t>;
+  using bytes_t = std::vector<std::uint8_t>;
   
-  class WrapperException : std::exception
+  std::string GetSslErrorString();
+  std::string GetSystemErrorString();
+  
+  enum class Operation
   {
-  public:
-    WrapperException(const std::string & info, const std::string & filename, int line);
-    const char * what() const noexcept override;
-  private:
-    std::string _info;
+    EQUAL,
+    NOT_EQUAL,
+    LESS,
+    LESS_OR_EQUAL,
+    MORE,
+    MORE_OR_EQUAL
   };
   
-  class BaseFunctions
+  template<typename T>
+  bool Compare(T lhs, T rhs, Operation op)
   {
-  public:
-    static std::string GetSslErrorString();
-    static std::string GetOsErrorString();
-    static bytes_t GetFileData(const std::string & filename);
-    static void WriteToFile(const std::string & filename, const bytes_t & outData);
-    static std::string GetHexString(const bytes_t & bytes);
-    static std::string GetAsciiString(const bytes_t & bytes);
-  };
+    switch (op)
+    {
+      case Operation::EQUAL:
+        return lhs == rhs;
+      case Operation::NOT_EQUAL:
+        return lhs != rhs;
+      case Operation::LESS:
+        return lhs < rhs;
+      case Operation::LESS_OR_EQUAL:
+        return lhs <= rhs;
+      case Operation::MORE:
+        return lhs > rhs;
+      case Operation::MORE_OR_EQUAL:
+        return lhs >= rhs;
+      default:
+        return true;
+    }
+  }
+  
+  template <typename T>
+  void ThrowSslError(T lhs, T rhs, Operation op)
+  {
+    if (Compare(lhs, rhs, op)) {
+      throw std::runtime_error(GetSslErrorString());
+    }
+  }
+
+  template <typename T>
+  void ThrowSystemError(T lhs, T rhs, Operation op)
+  {
+    if (Compare(lhs, rhs, op)) {
+      throw std::runtime_error(GetSystemErrorString());
+    }
+  }
+  
+  bytes_t GetFileData(const std::string & filename);
+  void WriteToFile(const std::string & filename, const bytes_t & outData);
+  std::string GetHexString(const bytes_t & bytes);
+  std::string GetAsciiString(const bytes_t & bytes);
 }
