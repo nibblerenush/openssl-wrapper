@@ -14,12 +14,10 @@ namespace openssl_wrapper
     // ===== Set/Get =====
     void GenerateParameters() override;
     // ===== Write/Read =====
-    void WriteParametersToFile(const std::string & filename) override;
+    void WriteParametersToFile(const std::string & filename) const override;
     void ReadParametersFromFile(const std::string & filename) override;
     // ===== Write/Read =====
   private:
-    int _nbits;
-  private:
-    static const int DEFAULT_NBITS;
+    int m_nbits;
   };
 }

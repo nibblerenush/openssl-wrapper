@@ -5,89 +5,88 @@
 
 namespace openssl_wrapper
 {
-  const int RsaKey::DEFAULT_KEYGEN_BITS = 2048;
+  const int DEFAULT_KEYGEN_BITS = 2048;
   
   RsaKey::RsaKey():
-  Key(),
-  _digestname("SHA1"),
-  _padding(RSA_PKCS1_PADDING),
-  _pssSaltlen(-2),
-  _keygenBits(DEFAULT_KEYGEN_BITS),
-  _pubexp(RSA_F4)
+    Key(),
+    m_digestname("SHA1"),
+    m_padding(RSA_PKCS1_PADDING),
+    m_pssSaltlen(-2),
+    m_keygenBits(DEFAULT_KEYGEN_BITS),
+    m_pubexp(RSA_F4)
   {}
   
   // ===== Set/Get =====
-  void RsaKey::SetDigestName(const std::string & digestname)
-  {
-    _digestname = digestname;
+  void RsaKey::SetDigestName(const std::string & digestname) {
+    m_digestname = digestname;
   }
-  std::string RsaKey::GetDigestName() const
-  {
-    return _digestname;
+
+  std::string RsaKey::GetDigestName() const {
+    return m_digestname;
   }
-  void RsaKey::SetPadding(int padding)
-  {
-    _padding = padding;
+
+  void RsaKey::SetPadding(int padding) {
+    m_padding = padding;
   }
-  int RsaKey::GetPaddinbg() const
-  {
-    return _padding;
+
+  int RsaKey::GetPaddinbg() const {
+    return m_padding;
   }
-  void RsaKey::SetPssSaltlen(int pssSaltlen)
-  {
-    _pssSaltlen = pssSaltlen;
+
+  void RsaKey::SetPssSaltlen(int pssSaltlen) {
+    m_pssSaltlen = pssSaltlen;
   }
-  int RsaKey::GetPssSaltlen() const
-  {
-    return _pssSaltlen;
+
+  int RsaKey::GetPssSaltlen() const {
+    return m_pssSaltlen;
   }
-  void RsaKey::SetKeygenBits(int keygenBits)
-  {
-    _keygenBits = keygenBits;
+
+  void RsaKey::SetKeygenBits(int keygenBits) {
+    m_keygenBits = keygenBits;
   }
-  int RsaKey::GetKeygenBits() const
-  {
-    return _keygenBits;
+
+  int RsaKey::GetKeygenBits() const {
+    return m_keygenBits;
   }
-  void RsaKey::SetKeygenPubexp(int pubexp)
-  {
-    _pubexp = pubexp;
+  
+  void RsaKey::SetKeygenPubexp(int pubexp) {
+    m_pubexp = pubexp;
   }
-  int RsaKey::GetKeygenPubexp() const
-  {
-    return _pubexp;
+
+  int RsaKey::GetKeygenPubexp() const {
+    return m_pubexp;
   }
-  void RsaKey::SetPlaintext(const bytes_t & plaintext)
-  {
-    _plaintext = plaintext;
+
+  void RsaKey::SetPlaintext(const bytes_t & plaintext) {
+    m_plaintext = plaintext;
   }
-  bytes_t RsaKey::GetPlaintext() const
-  {
-    return _plaintext;
+
+  bytes_t RsaKey::GetPlaintext() const {
+    return m_plaintext;
   }
-  void RsaKey::SetCiphertext(const bytes_t & ciphertext)
-  {
-    _ciphertext = ciphertext;
+
+  void RsaKey::SetCiphertext(const bytes_t & ciphertext) {
+    m_ciphertext = ciphertext;
   }
-  bytes_t RsaKey::GetCiphertext() const
-  {
-    return _ciphertext;
+
+  bytes_t RsaKey::GetCiphertext() const {
+    return m_ciphertext;
   }
-  void RsaKey::SetMessage(const bytes_t & message)
-  {
-    _message = message;
+
+  void RsaKey::SetMessage(const bytes_t & message) {
+    m_message = message;
   }
-  bytes_t RsaKey::GetMessage() const
-  {
-    return _message;
+
+  bytes_t RsaKey::GetMessage() const {
+    return m_message;
   }
-  void RsaKey::SetSignature(const bytes_t & signature)
-  {
-    _signature = signature;
+
+  void RsaKey::SetSignature(const bytes_t & signature) {
+    m_signature = signature;
   }
-  bytes_t RsaKey::GetSignature() const
-  {
-    return _signature;
+
+  bytes_t RsaKey::GetSignature() const {
+    return m_signature;
   }
   // ===== Set/Get =====
   

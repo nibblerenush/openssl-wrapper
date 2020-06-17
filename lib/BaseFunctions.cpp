@@ -60,8 +60,8 @@ namespace openssl_wrapper
   std::string GetHexString(const bytes_t & bytes)
   {
     std::ostringstream result;
-    for (std::size_t i = 0; i < bytes.size(); ++i) {
-      result << std::hex << static_cast<int>(bytes[i]);
+    for (auto byte : bytes) {
+      result << std::hex << static_cast<int>(byte);
     }
     return result.str();
   }

@@ -35,16 +35,14 @@ namespace openssl_wrapper
     void Sign();
     bool Verify();
   private:
-    std::string _digestname;
-    int _padding;
-    int _pssSaltlen;
-    int _keygenBits;
-    int _pubexp;
-    bytes_t _plaintext;
-    bytes_t _ciphertext;
-    bytes_t _message;
-    bytes_t _signature;
-  private:
-    static const int DEFAULT_KEYGEN_BITS;
+    std::string m_digestname;
+    int m_padding;
+    int m_pssSaltlen;
+    int m_keygenBits;
+    int m_pubexp;
+    bytes_t m_plaintext;
+    bytes_t m_ciphertext;
+    bytes_t m_message;
+    bytes_t m_signature;
   };
 }

@@ -5,113 +5,85 @@
 
 namespace openssl_wrapper
 {
-  Key::Key():
-  _pkey(nullptr, &EVP_PKEY_free)
+  Key::Key(): m_pkey(nullptr, &EVP_PKEY_free)
   {}
   
   void Key::GenerateKey(const Parameters * params)
   {
-    if (!params)
-    {
-      throw WrapperException("Null parameters", __FILE__, __LINE__);
+    if (!params) {
+      throw std::invalid_argument("Null parameters");
     }
+
     // 1 step
-    auto keygenCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(params->_params.get(), nullptr), &EVP_PKEY_CTX_free);
-    if (!keygenCtx)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    auto keygenCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(params->m_params.get(), nullptr), &EVP_PKEY_CTX_free);
+    ThrowSslError<decltype(keygenCtx.get())>(keygenCtx.get(), nullptr, Operation::EQUAL);
+
     // 2 step
-    if (EVP_PKEY_keygen_init(keygenCtx.get()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_keygen_init(keygenCtx.get()), 0, Operation::LESS_OR_EQUAL);
+
     // 3 step
     EVP_PKEY * tempPkey = nullptr;
-    if (EVP_PKEY_keygen(keygenCtx.get(), &tempPkey) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _pkey.reset(tempPkey);
+    ThrowSslError(EVP_PKEY_keygen(keygenCtx.get(), &tempPkey), 0, Operation::LESS_OR_EQUAL);
+    m_pkey.reset(tempPkey);
   }
   
   // ===== Write/Read =====
-  void Key::WritePrivateKeyToFile(const std::string & filename, const std::string & cipherName, const std::string & pass)
+  void Key::WritePrivateKeyToFile(const std::string & filename, const std::string & cipherName, const std::string & pass) const
   {
-    if (pass.size() < 4)
-    {
-      throw WrapperException("Invalid pass size (must be >= 4)", __FILE__, __LINE__);
+    if (pass.size() < 4) {
+      throw std::invalid_argument("Invalid pass size (must be >= 4)");
     }
+
     // 1 step
     const EVP_CIPHER * evpCipher = EVP_get_cipherbyname(cipherName.c_str());
-    if (!evpCipher)
-    {
-      throw WrapperException("Invalid cipher name", __FILE__, __LINE__);
+    if (!evpCipher) {
+      throw std::invalid_argument("Invalid cipher name");
     }
+
     // 2 step
     std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "wb"), &std::fclose);
-    if (!file)
-    {
-      throw WrapperException(BaseFunctions::GetOsErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSystemError<decltype(file.get())>(file.get(), nullptr, Operation::EQUAL);
+
     // 3 step
-    if (!PEM_write_PrivateKey(file.get(), _pkey.get(), evpCipher, (unsigned char*)pass.c_str(), pass.length(), nullptr, nullptr))
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(PEM_write_PrivateKey(file.get(), m_pkey.get(), evpCipher, (unsigned char*)pass.c_str(), pass.length(), nullptr, nullptr), 0, Operation::EQUAL);
   }
   
   void Key::ReadPrivateKeyFromFile(const std::string & filename, const std::string & pass)
   {
-    if (pass.size() < 4)
-    {
-      throw WrapperException("Invalid pass size (must be >= 4)", __FILE__, __LINE__);
+    if (pass.size() < 4) {
+      throw std::invalid_argument("Invalid pass size (must be >= 4)");
     }
+
     // 1 step
     std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "rb"), &std::fclose);
-    if (!file)
-    {
-      throw WrapperException(BaseFunctions::GetOsErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSystemError<decltype(file.get())>(file.get(), nullptr, Operation::EQUAL);
+
     // 2 step
     EVP_PKEY * tempPkey = PEM_read_PrivateKey(file.get(), nullptr, nullptr, (void*)pass.c_str());
-    if (!tempPkey)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _pkey.reset(tempPkey);
+    ThrowSslError<decltype(tempPkey)>(tempPkey, nullptr, Operation::EQUAL);
+    m_pkey.reset(tempPkey);
   }
   
-  void Key::WritePublicKeyToFile(const std::string & filename)
+  void Key::WritePublicKeyToFile(const std::string & filename) const
   {
     // 1 step
     std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "wb"), &std::fclose);
-    if (!file)
-    {
-      throw WrapperException(BaseFunctions::GetOsErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSystemError<decltype(file.get())>(file.get(), nullptr, Operation::EQUAL);
+
     // 2 step
-    if (!PEM_write_PUBKEY(file.get(), _pkey.get()))
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(PEM_write_PUBKEY(file.get(), m_pkey.get()), 0, Operation::EQUAL);
   }
   
   void Key::ReadPublicKeyFromFile(const std::string & filename)
   {
     // 1 step
     std::unique_ptr<std::FILE, decltype(&std::fclose)> file(std::fopen(filename.c_str(), "rb"), &std::fclose);
-    if (!file)
-    {
-      throw WrapperException(BaseFunctions::GetOsErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSystemError<decltype(file.get())>(file.get(), nullptr, Operation::EQUAL);
+
     // 2 step
     EVP_PKEY * tempPkey = PEM_read_PUBKEY(file.get(), nullptr, nullptr, nullptr);
-    if (!tempPkey)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _pkey.reset(tempPkey);
+    ThrowSslError<decltype(tempPkey)>(tempPkey, nullptr, Operation::EQUAL);
+    m_pkey.reset(tempPkey);
   }
   // ===== Write/Read =====
 }

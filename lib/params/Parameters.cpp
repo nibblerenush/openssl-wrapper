@@ -2,7 +2,6 @@
 
 namespace openssl_wrapper
 {
-  Parameters::Parameters():
-  _params(nullptr, &EVP_PKEY_free)
+  Parameters::Parameters(): m_params(nullptr, &EVP_PKEY_free)
   {}
 }

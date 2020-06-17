@@ -16,13 +16,11 @@ namespace openssl_wrapper
     // ===== Set/Get =====
     void GenerateParameters() override;
     // ===== Write/Read =====
-    void WriteParametersToFile(const std::string & filename) override;
+    void WriteParametersToFile(const std::string & filename) const override;
     void ReadParametersFromFile(const std::string & filename) override;
     // ===== Write/Read =====
   private:
-    int _primeLen;
-    int _generator;
-  private:
-    static const int DEFAULT_PRIME_LEN;
+    int m_primeLen;
+    int m_generator;
   };
 }
