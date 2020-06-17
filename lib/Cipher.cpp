@@ -3,64 +3,57 @@
 namespace openssl_wrapper
 {
   Cipher::Cipher(const std::string & cipherName):
-  _context(nullptr, ContextDeleter),
-  _cipherName(cipherName)
+    m_context(nullptr, ContextDeleter),
+    m_cipherName(cipherName)
   {}
   
-  void Cipher::SetPlaintext(const bytes_t & plaintext)
-  {
-    _plaintext = plaintext;
+  void Cipher::SetPlaintext(const bytes_t & plaintext) {
+    m_plaintext = plaintext;
   }
   
-  bytes_t Cipher::GetPlaintext() const
-  {
-    return _plaintext;
+  bytes_t Cipher::GetPlaintext() const {
+    return m_plaintext;
   }
   
-  void Cipher::SetCiphertext(const bytes_t & ciphertext)
-  {
-    _ciphertext = ciphertext;
+  void Cipher::SetCiphertext(const bytes_t & ciphertext) {
+    m_ciphertext = ciphertext;
   }
   
-  bytes_t Cipher::GetCiphertext() const
-  {
-    return _ciphertext;
+  bytes_t Cipher::GetCiphertext() const {
+    return m_ciphertext;
   }
   
-  void Cipher::SetKey(const bytes_t & key)
-  {
-    _key = key;
+  void Cipher::SetKey(const bytes_t & key) {
+    m_key = key;
   }
   
-  void Cipher::SetIv(const bytes_t & iv)
-  {
-    _iv = iv;
+  void Cipher::SetIv(const bytes_t & iv) {
+    m_iv = iv;
   }
   
   void Cipher::StartEncrypt()
   {
-    _context.reset(new EVP_CIPHER_CTX);
-    EVP_CIPHER_CTX_init(_context.get());
-    const EVP_CIPHER * evpCipher = EVP_get_cipherbyname(_cipherName.c_str());
-    if (!evpCipher)
-    {
-      throw WrapperException("Invalid cipher name", __FILE__, __LINE__);
+    // 1 step
+    m_context.reset(new EVP_CIPHER_CTX);
+    EVP_CIPHER_CTX_init(m_context.get());
+    const EVP_CIPHER * evpCipher = EVP_get_cipherbyname(m_cipherName.c_str());
+    if (!evpCipher) {
+      throw std::domain_error("Invalid cipher name");
     }
-    //
-    if (!EVP_EncryptInit_ex(_context.get(), evpCipher, nullptr, nullptr, nullptr))
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
+
+    // 2 step
+    ThrowSslError(EVP_EncryptInit_ex(m_context.get(), evpCipher, nullptr, nullptr, nullptr), 0, Operation::EQUAL);
+
+    // 3 step
+    if (m_key.size() != EVP_CIPHER_CTX_key_length(m_context.get())) {
+      throw std::domain_error("Invalid key size");
     }
-    //
-    if (_key.size() != EVP_CIPHER_CTX_key_length(_context.get()))
-    {
-      throw WrapperException("Invalid key size", __FILE__, __LINE__);
+
+    // 4 step
+    if (m_iv.size() != EVP_CIPHER_CTX_iv_length(m_context.get())) {
+      throw std::domain_error("Invalid IV size");
     }
-    //
-    if (_iv.size() != EVP_CIPHER_CTX_iv_length(_context.get()))
-    {
-      throw WrapperException("Invalid IV size", __FILE__, __LINE__);
-    }
+
     //
     if (!EVP_EncryptInit_ex(_context.get(), nullptr, nullptr, _key.data(), _iv.data()))
     {

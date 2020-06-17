@@ -31,11 +31,11 @@ namespace openssl_wrapper
   private:
     static void ContextDeleter(EVP_CIPHER_CTX * context);
   private:
-    std::unique_ptr<EVP_CIPHER_CTX, decltype(&ContextDeleter)> _context;
-    std::string _cipherName;
-    bytes_t _plaintext;
-    bytes_t _ciphertext;
-    bytes_t _key;
-    bytes_t _iv;
+    std::unique_ptr<EVP_CIPHER_CTX, decltype(&ContextDeleter)> m_context;
+    std::string m_cipherName;
+    bytes_t m_plaintext;
+    bytes_t m_ciphertext;
+    bytes_t m_key;
+    bytes_t m_iv;
   };
 }

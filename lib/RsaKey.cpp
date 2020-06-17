@@ -94,227 +94,161 @@ namespace openssl_wrapper
   {
     // 1 step
     auto genkeyCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr), &EVP_PKEY_CTX_free);
-    if (!genkeyCtx)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError<decltype(genkeyCtx.get())>(genkeyCtx.get(), nullptr, Operation::EQUAL);
+    
     // 2 step
-    if (EVP_PKEY_keygen_init(genkeyCtx.get()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_keygen_init(genkeyCtx.get()), 0, Operation::LESS_OR_EQUAL);
+
     // 3 step
-    if (EVP_PKEY_CTX_set_rsa_keygen_bits(genkeyCtx.get(), _keygenBits) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_CTX_set_rsa_keygen_bits(genkeyCtx.get(), m_keygenBits), 0, Operation::LESS_OR_EQUAL);
+
     // 4 step
     BIGNUM * pubexp = BN_new();
-    if (!pubexp)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    if (!BN_set_word(pubexp, _pubexp))
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    if (EVP_PKEY_CTX_set_rsa_keygen_pubexp(genkeyCtx.get(), pubexp) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError<decltype(pubexp)>(pubexp, nullptr, Operation::EQUAL);
+    ThrowSslError(BN_set_word(pubexp, m_pubexp), 0, Operation::EQUAL);
+    ThrowSslError(EVP_PKEY_CTX_set_rsa_keygen_pubexp(genkeyCtx.get(), pubexp), 0, Operation::LESS_OR_EQUAL);
+
     // 5 step
     EVP_PKEY * tempPkey = nullptr;
-    if (EVP_PKEY_keygen(genkeyCtx.get(), &tempPkey) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _pkey.reset(tempPkey);
+    ThrowSslError(EVP_PKEY_keygen(genkeyCtx.get(), &tempPkey), 0, Operation::LESS_OR_EQUAL);
+    m_pkey.reset(tempPkey);
   }
-  
+
   void RsaKey::Encrypt()
   {
-    if (_plaintext.empty())
-    {
-      throw WrapperException("Plaintext is empty", __FILE__, __LINE__);
+    if (m_plaintext.empty()) {
+      throw std::domain_error("Plaintext is empty");
     }
+
     // 1 step
-    auto encCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(_pkey.get(), nullptr), &EVP_PKEY_CTX_free);
-    if (!encCtx)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }    
+    auto encCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(m_pkey.get(), nullptr), &EVP_PKEY_CTX_free);
+    ThrowSslError<decltype(encCtx.get())>(encCtx.get(), nullptr, Operation::EQUAL);
+
     // 2 step
-    if (EVP_PKEY_encrypt_init(encCtx.get()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_encrypt_init(encCtx.get()), 0, Operation::LESS_OR_EQUAL);
+
     // 3 step
-    if (EVP_PKEY_CTX_set_rsa_padding(encCtx.get(), _padding) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_CTX_set_rsa_padding(encCtx.get(), m_padding), 0, Operation::LESS_OR_EQUAL);
+
     // 4 step
     std::size_t outlen = 0;
-    if (EVP_PKEY_encrypt(encCtx.get(), nullptr, &outlen, _plaintext.data(), _plaintext.size()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _ciphertext.resize(outlen);
+    ThrowSslError(EVP_PKEY_encrypt(encCtx.get(), nullptr, &outlen, m_plaintext.data(), m_plaintext.size()), 0, Operation::LESS_OR_EQUAL);
+
     // 5 step
-    if (EVP_PKEY_encrypt(encCtx.get(), _ciphertext.data(), &outlen, _plaintext.data(), _plaintext.size()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _ciphertext.resize(outlen);
+    m_ciphertext.resize(outlen);
+    ThrowSslError(EVP_PKEY_encrypt(encCtx.get(), m_ciphertext.data(), &outlen, m_plaintext.data(), m_plaintext.size()), 0, Operation::LESS_OR_EQUAL);
+    m_ciphertext.resize(outlen);
   }
   
   void RsaKey::Decrypt()
   {
-    if (_ciphertext.empty())
-    {
-      throw WrapperException("Ciphertext is empty", __FILE__, __LINE__);
+    if (m_ciphertext.empty()) {
+      throw std::domain_error("Ciphertext is empty");
     }
+
     // 1 step
-    auto decCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(_pkey.get(), nullptr), &EVP_PKEY_CTX_free);
-    if (!decCtx)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    auto decCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(m_pkey.get(), nullptr), &EVP_PKEY_CTX_free);
+    ThrowSslError<decltype(decCtx.get())>(decCtx.get(), nullptr, Operation::EQUAL);
+
     // 2 step
-    if (EVP_PKEY_decrypt_init(decCtx.get()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_decrypt_init(decCtx.get()), 0, Operation::LESS_OR_EQUAL);
+
     // 3 step
-    if (EVP_PKEY_CTX_set_rsa_padding(decCtx.get(), _padding) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_CTX_set_rsa_padding(decCtx.get(), m_padding), 0, Operation::LESS_OR_EQUAL);
+
     // 4 step
     std::size_t outlen = 0;
-    if (EVP_PKEY_decrypt(decCtx.get(), nullptr, &outlen, _ciphertext.data(), _ciphertext.size()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _plaintext.resize(outlen);
+    ThrowSslError(EVP_PKEY_decrypt(decCtx.get(), nullptr, &outlen, m_ciphertext.data(), m_ciphertext.size()), 0, Operation::LESS_OR_EQUAL);
+    
     // 5 step
-    if (EVP_PKEY_decrypt(decCtx.get(), _plaintext.data(), &outlen, _ciphertext.data(), _ciphertext.size()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _plaintext.resize(outlen);
+    m_plaintext.resize(outlen);
+    ThrowSslError(EVP_PKEY_decrypt(decCtx.get(), m_plaintext.data(), &outlen, m_ciphertext.data(), m_ciphertext.size()), 0, Operation::LESS_OR_EQUAL);
+    m_plaintext.resize(outlen);
   }
   
   void RsaKey::Sign()
   {
-    if (_message.empty())
-    {
-      throw WrapperException("Message is empty", __FILE__, __LINE__);
+    if (m_message.empty()) {
+      throw std::domain_error("Message is empty");
     }
+
     // 1 step
-    auto signCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(_pkey.get(), nullptr), &EVP_PKEY_CTX_free);
-    if (!signCtx)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
+    const EVP_MD * digestType = EVP_get_digestbyname(m_digestname.c_str());
+    if (!digestType) {
+      throw std::domain_error("Invalid digest name");
     }
+
     // 2 step
-    const EVP_MD * digestType = EVP_get_digestbyname(_digestname.c_str());
-    if (!digestType)
-    {
-      throw WrapperException("Invalid digest name", __FILE__, __LINE__);
-    }
+    auto signCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(m_pkey.get(), nullptr), &EVP_PKEY_CTX_free);
+    ThrowSslError<decltype(signCtx.get())>(signCtx.get(), nullptr, Operation::EQUAL);
+
     // 3 step
-    if (EVP_PKEY_sign_init(signCtx.get()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_sign_init(signCtx.get()), 0, Operation::LESS_OR_EQUAL);
+
     // 4 step
-    if (EVP_PKEY_CTX_set_rsa_padding(signCtx.get(), _padding) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_CTX_set_rsa_padding(signCtx.get(), m_padding), 0, Operation::LESS_OR_EQUAL);
+
     // 5 step
-    if (_padding == RSA_PKCS1_PSS_PADDING)
-    {
-      if (EVP_PKEY_CTX_set_rsa_pss_saltlen(signCtx.get(), _pssSaltlen) <= 0)
-      {
-        throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-      }
+    if (m_padding == RSA_PKCS1_PSS_PADDING) {
+      ThrowSslError(EVP_PKEY_CTX_set_rsa_pss_saltlen(signCtx.get(), m_pssSaltlen), 0, Operation::LESS_OR_EQUAL);
     }
+
     // 6 step
-    if (EVP_PKEY_CTX_set_signature_md(signCtx.get(), digestType) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_CTX_set_signature_md(signCtx.get(), digestType), 0, Operation::LESS_OR_EQUAL);
+
     // 7 step
     std::size_t siglen = 0;
-    if (EVP_PKEY_sign(signCtx.get(), nullptr, &siglen, _message.data(), _message.size()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _signature.resize(siglen);
+    ThrowSslError(EVP_PKEY_sign(signCtx.get(), nullptr, &siglen, m_message.data(), m_message.size()), 0, Operation::LESS_OR_EQUAL);
+
     // 8 step
-    if (EVP_PKEY_sign(signCtx.get(), _signature.data(), &siglen, _message.data(), _message.size()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
-    _signature.resize(siglen);
+    m_signature.resize(siglen);
+    ThrowSslError(EVP_PKEY_sign(signCtx.get(), m_signature.data(), &siglen, m_message.data(), m_message.size()), 0, Operation::LESS_OR_EQUAL);
+    m_signature.resize(siglen);
   }
   
   bool RsaKey::Verify()
   {
-    if (_message.empty())
-    {
-      throw WrapperException("Message is empty", __FILE__, __LINE__);
+    if (m_message.empty()) {
+      throw std::domain_error("Message is empty");
     }
-    if (_signature.empty())
-    {
-      throw WrapperException("Signature is empty", __FILE__, __LINE__);
+
+    if (m_signature.empty()) {
+      throw std::domain_error("Signature is empty");
     }
+
     // 1 step
-    auto signCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(_pkey.get(), nullptr), &EVP_PKEY_CTX_free);
-    if (!signCtx)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
+    const EVP_MD * digestType = EVP_get_digestbyname(m_digestname.c_str());
+    if (!digestType) {
+      throw std::domain_error("Invalid digest name");
     }
+
     // 2 step
-    const EVP_MD * digestType = EVP_get_digestbyname(_digestname.c_str());
-    if (!digestType)
-    {
-      throw WrapperException("Invalid digest name", __FILE__, __LINE__);
-    }
+    auto verifyCtx = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>(EVP_PKEY_CTX_new(m_pkey.get(), nullptr), &EVP_PKEY_CTX_free);
+    ThrowSslError<decltype(verifyCtx.get())>(verifyCtx.get(), nullptr, Operation::EQUAL);
+    
     // 3 step
-    if (EVP_PKEY_verify_init(signCtx.get()) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_verify_init(verifyCtx.get()), 0, Operation::LESS_OR_EQUAL);
+
     // 4 step
-    if (EVP_PKEY_CTX_set_rsa_padding(signCtx.get(), _padding) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_CTX_set_rsa_padding(verifyCtx.get(), m_padding), 0, Operation::LESS_OR_EQUAL);
+
     // 5 step
-    if (_padding == RSA_PKCS1_PSS_PADDING)
-    {
-      if (EVP_PKEY_CTX_set_rsa_pss_saltlen(signCtx.get(), _pssSaltlen) <= 0)
-      {
-        throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-      }
+    if (m_padding == RSA_PKCS1_PSS_PADDING) {
+      ThrowSslError(EVP_PKEY_CTX_set_rsa_pss_saltlen(verifyCtx.get(), m_pssSaltlen), 0, Operation::LESS_OR_EQUAL);
     }
+
     // 6 step
-    if (EVP_PKEY_CTX_set_signature_md(signCtx.get(), digestType) <= 0)
-    {
-      throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);
-    }
+    ThrowSslError(EVP_PKEY_CTX_set_signature_md(verifyCtx.get(), digestType), 0, Operation::LESS_OR_EQUAL);
+
     // 7 step
-    switch (EVP_PKEY_verify(signCtx.get(), _signature.data(), _signature.size(), _message.data(), _message.size()))
+    switch (EVP_PKEY_verify(verifyCtx.get(), m_signature.data(), m_signature.size(), m_message.data(), m_message.size()))
     {
       case 1:
         return true;
       case 0:
         return false;
       default:
-        throw WrapperException(BaseFunctions::GetSslErrorString(), __FILE__, __LINE__);  
+        ThrowSslError(0, 0, Operation::EQUAL);
     }
   }
 }
