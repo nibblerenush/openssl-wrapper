@@ -17,6 +17,6 @@ RsaKey rsaKey;
 rsaKey.GenerateKey();
 rsaKey.SetPlaintext(plaintext);
 rsaKey.Encrypt()
-std::cout << "plaintext: " << BaseFunctions::GetAsciiString(plaintext) << '\n'
-  << "ciphertext: " << BaseFunctions::GetHexString(rsaKey.GetCiphertext()) << std::endl;
+std::cout << "plaintext: " << GetAsciiString(plaintext) << '\n'
+  << "ciphertext: " << GetHexString(rsaKey.GetCiphertext()) << std::endl;
 ```
