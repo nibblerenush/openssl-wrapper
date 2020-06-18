@@ -248,7 +248,7 @@ namespace openssl_wrapper
       case 0:
         return false;
       default:
-        ThrowSslError(0, 0, Operation::EQUAL);
+        throw std::runtime_error(GetSslErrorString());
     }
   }
 }

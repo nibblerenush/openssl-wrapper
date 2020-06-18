@@ -45,8 +45,8 @@ int main(int argc, char ** argv)
       cipher.Encrypt();
       cipher.FinalEncrypt();
       
-      std::cout << "plaintext: " << BaseFunctions::GetAsciiString(plaintext) << '\n'
-        << "ciphertext: " << BaseFunctions::GetHexString(cipher.GetCiphertext()) << std::endl;
+      std::cout << "plaintext: " << GetAsciiString(plaintext) << '\n'
+        << "ciphertext: " << GetHexString(cipher.GetCiphertext()) << std::endl;
     }
 
     // Diffie Hellman
@@ -79,8 +79,8 @@ int main(int argc, char ** argv)
       bytes_t dhKeyAgreement = KeyAgreement::KeyExchange(dhKey1, dhKey2);
       bytes_t ecKeyAgreement = KeyAgreement::KeyExchange(ecKey1, ecKey2);
 
-      std::cout << "DH common key: " << BaseFunctions::GetHexString(dhKeyAgreement) << '\n'
-        << "EC common key: " << BaseFunctions::GetHexString(ecKeyAgreement) << std::endl;
+      std::cout << "DH common key: " << GetHexString(dhKeyAgreement) << '\n'
+        << "EC common key: " << GetHexString(ecKeyAgreement) << std::endl;
     }
 
     // RSA encryption
@@ -93,8 +93,8 @@ int main(int argc, char ** argv)
       rsaKey.SetPlaintext(plaintext);
       rsaKey.Encrypt();
       
-      std::cout << "plaintext: " << BaseFunctions::GetAsciiString(plaintext) << '\n'
-        << "ciphertext: " << BaseFunctions::GetHexString(rsaKey.GetCiphertext()) << std::endl;
+      std::cout << "plaintext: " << GetAsciiString(plaintext) << '\n'
+        << "ciphertext: " << GetHexString(rsaKey.GetCiphertext()) << std::endl;
     }
 
     // Digital signature
@@ -124,9 +124,9 @@ int main(int argc, char ** argv)
       bytes_t dsaSignature = DigitalSignature::Sign(dsaKey, "SHA256", plaintext);
       bytes_t ecdsaSignature = DigitalSignature::Sign(ecKey, "SHA256", plaintext);
 
-      std::cout << "RSA signature: " << BaseFunctions::GetHexString(rsaSignature) << '\n'
-        << "Dsa signature: " << BaseFunctions::GetHexString(dsaSignature) << '\n'
-        << "Ecdsa signature: " << BaseFunctions::GetHexString(ecdsaSignature) << std::endl;
+      std::cout << "RSA signature: " << GetHexString(rsaSignature) << '\n'
+        << "Dsa signature: " << GetHexString(dsaSignature) << '\n'
+        << "Ecdsa signature: " << GetHexString(ecdsaSignature) << std::endl;
     }
 
     // Digest
@@ -134,8 +134,8 @@ int main(int argc, char ** argv)
     {
       bytes_t digest = Digest::GetHash("SHA1", plaintext);
 
-      std::cout << "plaintext: " << BaseFunctions::GetAsciiString(plaintext) << '\n'
-        << "digest: " << BaseFunctions::GetHexString(digest) << std::endl;
+      std::cout << "plaintext: " << GetAsciiString(plaintext) << '\n'
+        << "digest: " << GetHexString(digest) << std::endl;
     }
 
     // Hmac
@@ -143,8 +143,8 @@ int main(int argc, char ** argv)
     {
       bytes_t hmac = Hmac::GetMac("SHA1", plaintext, {'1', '2', '3', '4'});
       
-      std::cout << "plaintext: " << BaseFunctions::GetAsciiString(plaintext) << '\n'
-        << "hmac: " << BaseFunctions::GetHexString(hmac) << std::endl;
+      std::cout << "plaintext: " << GetAsciiString(plaintext) << '\n'
+        << "hmac: " << GetHexString(hmac) << std::endl;
     }
 
     // Invalid
@@ -154,7 +154,7 @@ int main(int argc, char ** argv)
       return EXIT_FAILURE;
     }
   }
-  catch (const WrapperException & ex)
+  catch (const std::exception & ex)
   {
     std::cerr << "Error: " << ex.what() << std::endl;
     return EXIT_FAILURE;

@@ -20,7 +20,7 @@ namespace openssl_wrapper
     return errBuf;
   }
   
-  std::string GetOsErrorString() {
+  std::string GetSystemErrorString() {
     return std::strerror(errno);
   }
   

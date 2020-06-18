@@ -45,7 +45,7 @@ target_link_libraries(${openssl_wrapper_target} PUBLIC OpenSSL::Crypto OpenSSL::
 install(TARGETS ${openssl_wrapper_target} DESTINATION /usr/lib64)
 install(DIRECTORY include/openssl-wrapper DESTINATION /usr/include)
 
-#option(BUILD_EXAMPLE "For building example" ON)
-#if(BUILD_EXAMPLE)
-#  add_subdirectory(example)
-#endif(BUILD_EXAMPLE)
+option(BUILD_EXAMPLE "For building example" ON)
+if(BUILD_EXAMPLE)
+  add_subdirectory(example)
+endif(BUILD_EXAMPLE)
